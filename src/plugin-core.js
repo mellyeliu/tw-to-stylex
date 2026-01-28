@@ -125,6 +125,122 @@ export function createPlugin(convertTwToJs: ConvertTwToJs): PluginObj<> {
     return t.memberExpression(styles, t.identifier(keyName));
   };
 
+  // Helper to convert a class string to a StyleX member expression
+  const classesToStyleXMember = (classes: string): t.MemberExpression | null => {
+    if (cnMap[classes]) {
+      return t.memberExpression(styles, t.identifier(cnMap[classes]));
+    }
+    const styleObject = convertTwToJs(classes);
+    if (styleObject == null) {
+      return null;
+    }
+    const keyName = `$${++count}`;
+    styleMap[keyName] = styleObject;
+    cnMap[classes] = keyName;
+    return t.memberExpression(styles, t.identifier(keyName));
+  };
+
+  // Handle conditional expressions: condition ? 'class-a' : 'class-b'
+  const handleConditionalExpression = (
+    condPath: NodePath<t.ConditionalExpression>
+  ): t.Expression | null => {
+    const consequent = condPath.get("consequent");
+    const alternate = condPath.get("alternate");
+
+    const consequentResult = consequent.evaluate();
+    const alternateResult = alternate.evaluate();
+
+    if (!consequentResult.confident || !alternateResult.confident) {
+      return null;
+    }
+    if (typeof consequentResult.value !== "string" || typeof alternateResult.value !== "string") {
+      return null;
+    }
+
+    const consequentStyle = classesToStyleXMember(consequentResult.value);
+    const alternateStyle = classesToStyleXMember(alternateResult.value);
+
+    if (!consequentStyle || !alternateStyle) {
+      return null;
+    }
+
+    return t.conditionalExpression(
+      condPath.node.test,
+      consequentStyle,
+      alternateStyle
+    );
+  };
+
+  // Handle logical expressions: condition && 'class-name'
+  const handleLogicalExpression = (
+    logicalPath: NodePath<t.LogicalExpression>
+  ): t.Expression | null => {
+    if (logicalPath.node.operator !== "&&") {
+      return null;
+    }
+
+    const right = logicalPath.get("right");
+    const rightResult = right.evaluate();
+
+    if (!rightResult.confident || typeof rightResult.value !== "string") {
+      return null;
+    }
+
+    const rightStyle = classesToStyleXMember(rightResult.value);
+    if (!rightStyle) {
+      return null;
+    }
+
+    return t.logicalExpression("&&", logicalPath.node.left, rightStyle);
+  };
+
+  // Handle template literals with conditionals: `base ${cond ? 'a' : 'b'}`
+  const handleTemplateLiteralWithConditionals = (
+    templatePath: NodePath<t.TemplateLiteral>
+  ): t.Expression[] | null => {
+    const quasis = templatePath.node.quasis;
+    const expressions = templatePath.get("expressions");
+
+    const styleExprs: t.Expression[] = [];
+    const staticClasses: string[] = [];
+
+    for (const quasi of quasis) {
+      const text = quasi.value.raw.trim();
+      if (text) {
+        staticClasses.push(text);
+      }
+    }
+
+    if (staticClasses.length > 0) {
+      const staticStyle = classesToStyleXMember(staticClasses.join(" "));
+      if (staticStyle) {
+        styleExprs.push(staticStyle);
+      }
+    }
+
+    for (const expr of expressions) {
+      if (pathUtils.isConditionalExpression(expr)) {
+        const result = handleConditionalExpression(expr);
+        if (result) {
+          styleExprs.push(result);
+        } else {
+          return null;
+        }
+      } else if (pathUtils.isLogicalExpression(expr)) {
+        const result = handleLogicalExpression(expr);
+        if (result) {
+          styleExprs.push(result);
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
+    }
+
+    return styleExprs.length > 0 ? styleExprs : null;
+  };
+
   return {
     name: "tailwind-to-stylex",
     visitor: {
@@ -176,6 +292,54 @@ export function createPlugin(convertTwToJs: ConvertTwToJs): PluginObj<> {
                 }
 
                 return;
+              }
+
+              // Handle conditional expressions: condition ? 'class-a' : 'class-b'
+              if (pathUtils.isConditionalExpression(valuePath)) {
+                const condResult = handleConditionalExpression(valuePath);
+                if (condResult && isHTML) {
+                  jsxAttributePath.replaceWith(
+                    t.jsxSpreadAttribute(
+                      t.callExpression(
+                        t.memberExpression(stylex, t.identifier("props")),
+                        [condResult]
+                      )
+                    )
+                  );
+                  return;
+                }
+              }
+
+              // Handle logical expressions: condition && 'class-name'
+              if (pathUtils.isLogicalExpression(valuePath)) {
+                const logicalResult = handleLogicalExpression(valuePath);
+                if (logicalResult && isHTML) {
+                  jsxAttributePath.replaceWith(
+                    t.jsxSpreadAttribute(
+                      t.callExpression(
+                        t.memberExpression(stylex, t.identifier("props")),
+                        [logicalResult]
+                      )
+                    )
+                  );
+                  return;
+                }
+              }
+
+              // Handle template literals with conditionals: `base ${cond ? 'a' : 'b'}`
+              if (pathUtils.isTemplateLiteral(valuePath)) {
+                const templateResult = handleTemplateLiteralWithConditionals(valuePath);
+                if (templateResult && isHTML) {
+                  jsxAttributePath.replaceWith(
+                    t.jsxSpreadAttribute(
+                      t.callExpression(
+                        t.memberExpression(stylex, t.identifier("props")),
+                        templateResult
+                      )
+                    )
+                  );
+                  return;
+                }
               }
 
               const result = valuePath.evaluate();
