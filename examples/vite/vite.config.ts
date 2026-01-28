@@ -8,7 +8,8 @@ import { fileURLToPath } from 'url';
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const tailwindToStylexSync = require('./tailwind-to-stylex-sync.cjs');
+// Import the sync wrapper from the main package
+const tailwindToStylexSync = require('tailwind-to-stylex/sync').default;
 
 export default defineConfig({
   plugins: [

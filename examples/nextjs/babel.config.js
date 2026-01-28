@@ -1,7 +1,7 @@
 const path = require('path');
 
-// Synchronous wrapper for tailwind-to-stylex
-const tailwindToStylexSync = require('./tailwind-to-stylex-sync');
+// Import sync wrapper from the main package
+const tailwindToStylexSync = require('tailwind-to-stylex/sync').default;
 
 const dev = process.env.NODE_ENV !== 'production';
 

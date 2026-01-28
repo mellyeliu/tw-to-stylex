@@ -6,6 +6,7 @@
   "types": "lib/index.d.ts",
   "exports": {
     ".": "./lib/index.js",
+    "./sync": "./lib/sync.js",
     "./theme.css": "./theme.css",
     "./tw": "./lib/tw.js",
     "./lib/*": "./lib/*"
@@ -17,7 +18,7 @@
   "license": "MIT",
   "scripts": {
     "prebuild": "node ./scripts/gen-types.js -i src/ -o lib/",
-    "build": "babel src/ --out-dir lib/ --copy-files",
+    "build": "babel src/ --out-dir lib/ --copy-files && cp src/tw-compile.cjs lib/tw-compile.cjs",
     "test": "jest"
   },
   "dependencies": {
@@ -27,7 +28,7 @@
     "postcss": "^8.4.32",
     "postcss-js": "^4.0.1",
     "prettier-plugin-hermes-parser": "^0.18.0",
-    "tailwindcss": "^4.0.0-alpha.24"
+    "tailwindcss": "^4.1.18"
   },
   "jest": {},
   "files": [
