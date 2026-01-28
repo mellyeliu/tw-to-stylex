@@ -4,7 +4,26 @@
 
 /* $FlowFixMe */
 import postcss from "postcss";
+import fs from "fs";
+import path from "path";
 import CheatSheet from "./cheatsheet";
+
+// Load and parse theme.css to get theme variable definitions
+let themeVars: Map<string, string> = new Map();
+try {
+  let themePath = path.join(__dirname, "../theme.css");
+  themePath = themePath.replace("file:", "");
+  const themeContent = fs.readFileSync(themePath, "utf-8");
+  // Parse CSS variable definitions from theme.css
+  // Match patterns like: --font-sans: ui-sans-serif, system-ui, ...;
+  const varRegex = /^\s*(--[\w-]+):\s*([^;]+);/gm;
+  let match;
+  while ((match = varRegex.exec(themeContent)) !== null) {
+    themeVars.set(match[1], match[2].trim());
+  }
+} catch (e) {
+  // Theme file not found, continue without theme vars
+}
 
 const arbitrarySupportedClasses = {
   pt: "padding-top",
@@ -384,83 +403,197 @@ export const convertFromCssToJss = (
   classNames: string | $ReadOnlyArray<string>,
   css: string,
 ): null | Jss => {
-  // console.log("classNames", classNames);
-  // console.log("css", css);
-  const toMatch = typeof classNames === "string" 
+  const toMatch = typeof classNames === "string"
     ? classNames.split(' ')
     : classNames;
   const found: Array<string> = [];
   try {
     const root = postcss.parse(css);
     const object: Jss = {};
-    const processNode = (node: any, atRules: $ReadOnlyArray<string> = []) => {
+
+    // First pass: collect @property initial-values
+    const propertyInitialValues: Map<string, string> = new Map();
+    for (let node of root.nodes) {
+      if (node.type === "atrule" && node.name === "property" && node.nodes) {
+        const propName = node.params; // e.g., "--tw-border-style"
+        for (let child of node.nodes) {
+          if (child.type === "decl" && child.prop === "initial-value") {
+            propertyInitialValues.set(propName, child.value);
+          }
+        }
+      }
+    }
+
+    // Helper to inline CSS variable values
+    // Priority: localVars (from current rule) > @property initial-values > theme vars
+    const inlineVarValues = (
+      value: string,
+      localVars: Map<string, string>
+    ): string => {
+      // Match var(--name) or var(--name, fallback)
+      return value.replace(/var\((--[\w-]+)(?:,\s*([^)]+))?\)/g, (match, varName, fallback) => {
+        // First check if the variable is set locally in this rule
+        const localValue = localVars.get(varName);
+        if (localValue) {
+          return localValue;
+        }
+        // Then check @property initial-values
+        const initialValue = propertyInitialValues.get(varName);
+        if (initialValue) {
+          return initialValue;
+        }
+        // Then check theme variables
+        const themeValue = themeVars.get(varName);
+        if (themeValue) {
+          return themeValue;
+        }
+        // Finally use the fallback if provided
+        if (fallback) {
+          return fallback.trim();
+        }
+        return match; // Keep original if no value found
+      });
+    };
+
+    // Updated to handle Tailwind v4's nested CSS syntax with & selectors
+    const processNode = (
+      node: any,
+      conditions: $ReadOnlyArray<string> = [],
+      insideMatchedClass: boolean = false,
+      localVars: Map<string, string> = new Map()
+    ) => {
       if (node.type === "root") {
         for (let child of node.nodes) {
-          processNode(child, atRules);
+          processNode(child, conditions, false, localVars);
         }
         return;
       }
+
       if (node.type === "atrule") {
         const atRuleRaw = node.toString();
         const atRule = atRuleRaw.split("{")[0].trim();
-        if (!atRule.startsWith("@media") &&
-            !atRule.startsWith("@supports") &&
-            !atRule.startsWith("@container") &&
-            !atRule.startsWith("@scope")
-        ) {
+
+        // Skip @property and @keyframes
+        if (atRule.startsWith("@property") || atRule.startsWith("@keyframes")) {
           return;
         }
+
+        // Handle @layer by recursing without adding to conditions
         if (atRule.startsWith("@layer")) {
           for (let child of node.nodes) {
-            processNode(child, atRules);
+            processNode(child, conditions, insideMatchedClass, localVars);
           }
           return;
         }
-        for (let child of node.nodes) {
-          processNode(child, [...atRules, atRule]);
+
+        // Handle @media, @supports, @container, @scope
+        if (atRule.startsWith("@media") ||
+            atRule.startsWith("@supports") ||
+            atRule.startsWith("@container") ||
+            atRule.startsWith("@scope")
+        ) {
+          for (let child of node.nodes) {
+            processNode(child, [...conditions, atRule], insideMatchedClass, localVars);
+          }
+          return;
         }
+
         return;
       }
+
       if (node.type === "rule") {
-        
-        const pseudos = extractPseudos(node.selector);
+        const selector = node.selector;
+
+        // Handle Tailwind v4's nested & selectors
+        if (selector.startsWith("&")) {
+          if (insideMatchedClass) {
+            const selectorPart = selector.slice(1); // Remove the &
+
+            // Check for unsupported StyleX patterns
+            const unsupportedPatterns = [
+              { pattern: /^[>\+~]/, name: 'combinator selectors (>, +, ~)', example: '&>*' },
+              { pattern: /^\s+[^\s:]/, name: 'descendant selectors', example: '& .child' },
+              { pattern: /^\./, name: 'compound class selectors', example: '&.other-class' },
+              { pattern: /:has\(/, name: ':has() pseudo-class', example: '&:has(> img)' },
+              { pattern: /:where\(/, name: ':where() pseudo-class', example: '&:where(.foo)' },
+            ];
+
+            for (const { pattern, name, example } of unsupportedPatterns) {
+              if (pattern.test(selectorPart)) {
+                console.warn(
+                  `[TW→StyleX] Skipping unsupported pattern: ${name}\n` +
+                  `  Selector: &${selectorPart}\n` +
+                  `  Example: ${example}\n` +
+                  `  StyleX limitation: atomic CSS doesn't support element relationships or compound selectors`
+                );
+                return;
+              }
+            }
+
+            const pseudos = extractPseudos(selectorPart);
+
+            for (let child of node.nodes) {
+              processNode(child, [...conditions, ...pseudos], true, localVars);
+            }
+          }
+          return;
+        }
+
+        // Handle regular class selectors
+        const pseudos = extractPseudos(selector);
         let className = pseudos
           .reduce(
             (acc, pseudo) => acc.replace(pseudo, ""),
-            node.selector
+            selector
               .replace(/^\./, '')
               .replaceAll(' .', '')
               .replaceAll("\\", "")
           );
         if (toMatch.includes(className)) {
           found.push(className);
+          // First, collect all CSS variable declarations from this rule
+          const localVars: Map<string, string> = new Map();
           for (let child of node.nodes) {
-            processNode(child, [...atRules, ...pseudos]);
+            if (child.type === "decl" && child.prop.startsWith("--")) {
+              localVars.set(child.prop, child.value);
+            }
+          }
+          // Then process all children with access to local vars
+          for (let child of node.nodes) {
+            processNode(child, [...conditions, ...pseudos], true, localVars);
           }
         }
         return;
       }
+
       if (node.type === "decl") {
         const propName = dashedToCamelCase(node.prop);
-        if (object[propName] == null && atRules.length === 0) {
-          object[propName] = node.value;
+        const propValue = inlineVarValues(node.value, localVars);
+
+        // Filter out @media (hover: hover) - it's just for touch device detection
+        const filteredConditions = conditions.filter(
+          (c) => c !== '@media (hover: hover)'
+        );
+
+        if (object[propName] == null && filteredConditions.length === 0) {
+          object[propName] = propValue;
           return;
         }
 
-        if (atRules.length === 0) {
+        if (filteredConditions.length === 0) {
           // last applied style wins!
           if (typeof object[propName] === "string") {
-            object[propName] = node.value;
+            object[propName] = propValue;
           } else {
             object[propName] = {
               ...object[propName],
-              default: node.value,
+              default: propValue,
             };
           }
           return;
         }
 
-        const pseudoElementIndexes: Array<number> = atRules
+        const pseudoElementIndexes: Array<number> = filteredConditions
           .map((r, i) => r.startsWith("::") ? i : null)
           .filter((i)/*: i is number*/ => i !== null);
 
@@ -468,21 +601,16 @@ export const convertFromCssToJss = (
           const lastPseudoElementIndex = pseudoElementIndexes[
             pseudoElementIndexes.length - 1
           ];
-          const untilLastPseudoElement = atRules.slice(0, lastPseudoElementIndex + 1);
-          const afterLastPseudoElement = atRules.slice(lastPseudoElementIndex + 1);
+          const untilLastPseudoElement = filteredConditions.slice(0, lastPseudoElementIndex + 1);
+          const afterLastPseudoElement = filteredConditions.slice(lastPseudoElementIndex + 1);
 
-          deeplyAddValue(object, node.value, [...untilLastPseudoElement, propName, ...afterLastPseudoElement]);
+          deeplyAddValue(object, propValue, [...untilLastPseudoElement, propName, ...afterLastPseudoElement]);
         } else {
-          deeplyAddValue(object, node.value, [propName, ...atRules]);
+          deeplyAddValue(object, propValue, [propName, ...filteredConditions]);
         }
       }
     };
     processNode(root);
-    // const unfound = toMatch.filter((i) => !found.includes(i));
-    // if (unfound.length > 0) {
-    //   console.log('When compiling', classNames, 'the following classes were not compiled: ', unfound);
-    //   console.log('Tailwind 2 converter gives us', getConvertedClasses(unfound.join(' ')));
-    // }
     const packed = packObject(object);
     return packed;
   } catch (e) {
