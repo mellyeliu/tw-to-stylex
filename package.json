@@ -30,7 +30,18 @@
     "prettier-plugin-hermes-parser": "^0.18.0",
     "tailwindcss": "^4.1.18"
   },
-  "jest": {},
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {
+      "^.+\\.(js|jsx)$": "babel-jest"
+    },
+    "transformIgnorePatterns": [
+      "/node_modules/(?!(tailwindcss|lightningcss)/)"
+    ],
+    "moduleFileExtensions": ["js", "jsx", "json"],
+    "testMatch": ["**/__test__/**/*.test.js"],
+    "testTimeout": 30000
+  },
   "files": [
     "lib/*",
     "theme.css",

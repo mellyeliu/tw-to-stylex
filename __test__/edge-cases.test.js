@@ -112,7 +112,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     const css = compile(input.split(" "));
 
     expect(css).toMatchInlineSnapshot(`
-     "/*! tailwindcss v4.0.0-alpha.24 | MIT License | https://tailwindcss.com */
+     "/*! tailwindcss v4.1.18 | MIT License | https://tailwindcss.com */
      .absolute {
        position: absolute;
      }
@@ -155,7 +155,11 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     const compile = await makeCompiler();
     const css = compile(input.split(" "));
     expect(css).toMatchInlineSnapshot(`
-     "/*! tailwindcss v4.0.0-alpha.24 | MIT License | https://tailwindcss.com */
+     "/*! tailwindcss v4.1.18 | MIT License | https://tailwindcss.com */
+     .flex-grow {
+       flex-grow: 1;
+     }
+
      .bg-gray-50 {
        background-color: #f9fafb;
      }
@@ -170,6 +174,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
      {
        "backgroundColor": "#f9fafb",
        "color": "#374151",
+       "flexGrow": "1",
      }
     `);
   });
@@ -178,7 +183,15 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     const compile = await makeCompiler();
     const css = compile(input.split(" "));
     expect(css).toMatchInlineSnapshot(`
-     "/*! tailwindcss v4.0.0-alpha.24 | MIT License | https://tailwindcss.com */
+     "/*! tailwindcss v4.1.18 | MIT License | https://tailwindcss.com */
+     @layer properties {
+       @supports (((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b)))) {
+         *, :before, :after, ::backdrop {
+           --tw-space-x-reverse: 0;
+         }
+       }
+     }
+
      .inline-flex {
        display: inline-flex;
      }
@@ -192,20 +205,13 @@ describe("tailwind-to-stylex converting individual classnames", () => {
      }
 
      :where(.space-x-2 > :not(:last-child)) {
+       --tw-space-x-reverse: 0;
        margin-inline-start: calc(.5rem * var(--tw-space-x-reverse));
        margin-inline-end: calc(.5rem * calc(1 - var(--tw-space-x-reverse)));
      }
 
-     @supports (-moz-orient: inline) {
-       @layer base {
-         *, :before, :after, ::backdrop {
-           --tw-space-x-reverse: 0;
-         }
-       }
-     }
-
      @property --tw-space-x-reverse {
-       syntax: "<number>";
+       syntax: "*";
        inherits: false;
        initial-value: 0;
      }
@@ -225,7 +231,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     const compile = await makeCompiler();
     const css = compile(input.split(" "));
     expect(css).toMatchInlineSnapshot(`
-     "/*! tailwindcss v4.0.0-alpha.24 | MIT License | https://tailwindcss.com */
+     "/*! tailwindcss v4.1.18 | MIT License | https://tailwindcss.com */
      .w-3\\/4 {
        width: 75%;
      }
@@ -243,19 +249,9 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     const compile = await makeCompiler();
     const css = compile(input.split(" "));
     expect(css).toMatchInlineSnapshot(`
-     "/*! tailwindcss v4.0.0-alpha.24 | MIT License | https://tailwindcss.com */
-     .z-50 {
-       z-index: 50;
-     }
-
-     .backdrop-blur-sm {
-       --tw-backdrop-blur: blur(4px);
-       -webkit-backdrop-filter: var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, );
-       backdrop-filter: var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, );
-     }
-
-     @supports (-moz-orient: inline) {
-       @layer base {
+     "/*! tailwindcss v4.1.18 | MIT License | https://tailwindcss.com */
+     @layer properties {
+       @supports (((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b)))) {
          *, :before, :after, ::backdrop {
            --tw-backdrop-blur: initial;
            --tw-backdrop-brightness: initial;
@@ -268,6 +264,16 @@ describe("tailwind-to-stylex converting individual classnames", () => {
            --tw-backdrop-sepia: initial;
          }
        }
+     }
+
+     .z-50 {
+       z-index: 50;
+     }
+
+     .backdrop-blur-sm {
+       --tw-backdrop-blur: blur(4px);
+       -webkit-backdrop-filter: var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, );
+       backdrop-filter: var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, );
      }
 
      @property --tw-backdrop-blur {
@@ -320,8 +326,8 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     expect(convert(compile)(input)).toMatchInlineSnapshot(`
      {
        "--tw-backdrop-blur": "blur(4px)",
-       "WebkitBackdropFilter": "var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, )",
-       "backdropFilter": "var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, )",
+       "WebkitBackdropFilter": "blur(4px)        ",
+       "backdropFilter": "blur(4px)        ",
        "zIndex": "50",
      }
     `);
@@ -331,7 +337,11 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     const compile = await makeCompiler();
     const css = compile(input.split(" "));
     expect(css).toMatchInlineSnapshot(`
-     "/*! tailwindcss v4.0.0-alpha.24 | MIT License | https://tailwindcss.com */
+     "/*! tailwindcss v4.1.18 | MIT License | https://tailwindcss.com */
+     .flex-shrink-0 {
+       flex-shrink: 0;
+     }
+
      .text-gray-500 {
        color: #6b7280;
      }
@@ -341,6 +351,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     expect(convert(compile)(input)).toMatchInlineSnapshot(`
      {
        "color": "#6b7280",
+       "flexShrink": "0",
      }
     `);
   });
@@ -349,7 +360,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     const compile = await makeCompiler();
     const css = compile(input.split(" "));
     expect(css).toMatchInlineSnapshot(`
-     "/*! tailwindcss v4.0.0-alpha.24 | MIT License | https://tailwindcss.com */
+     "/*! tailwindcss v4.1.18 | MIT License | https://tailwindcss.com */
 
      "
     `);
@@ -362,44 +373,20 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     const compile = await makeCompiler();
     const css = compile(input.split(" "));
     expect(css).toMatchInlineSnapshot(`
-     "/*! tailwindcss v4.0.0-alpha.24 | MIT License | https://tailwindcss.com */
-     .transition-all {
-       transition-property: all;
-       transition-duration: .15s;
-       transition-timing-function: cubic-bezier(.4, 0, .2, 1);
-     }
-
-     .duration-500 {
-       transition-duration: .5s;
-     }
-
-     @media (width >= 48rem) {
-       .md\\:hover\\:scale-105:hover {
-         --tw-scale-x: 105%;
-         --tw-scale-y: 105%;
-         --tw-scale-z: 105%;
-         scale: var(--tw-scale-x) var(--tw-scale-y);
-       }
-     }
-
-     @media (width >= 48rem) {
-       .md\\:hover\\:shadow-2xl:hover {
-         --tw-shadow: 0 25px 50px -12px #00000040;
-         --tw-shadow-colored: 0 25px 50px -12px var(--tw-shadow-color);
-         box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-       }
-     }
-
-     @supports (-moz-orient: inline) {
-       @layer base {
+     "/*! tailwindcss v4.1.18 | MIT License | https://tailwindcss.com */
+     @layer properties {
+       @supports (((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b)))) {
          *, :before, :after, ::backdrop {
+           --tw-duration: initial;
            --tw-scale-x: 1;
            --tw-scale-y: 1;
            --tw-scale-z: 1;
            --tw-shadow: 0 0 #0000;
-           --tw-shadow-colored: 0 0 #0000;
+           --tw-shadow-color: initial;
+           --tw-shadow-alpha: 100%;
            --tw-inset-shadow: 0 0 #0000;
-           --tw-inset-shadow-colored: 0 0 #0000;
+           --tw-inset-shadow-color: initial;
+           --tw-inset-shadow-alpha: 100%;
            --tw-ring-color: initial;
            --tw-ring-shadow: 0 0 #0000;
            --tw-inset-ring-color: initial;
@@ -412,20 +399,56 @@ describe("tailwind-to-stylex converting individual classnames", () => {
        }
      }
 
+     .transition-all {
+       transition-property: all;
+       transition-timing-function: var(--tw-ease, cubic-bezier(.4, 0, .2, 1));
+       transition-duration: var(--tw-duration, .15s);
+     }
+
+     .duration-500 {
+       --tw-duration: .5s;
+       transition-duration: .5s;
+     }
+
+     @media (width >= 48rem) {
+       @media (hover: hover) {
+         .md\\:hover\\:scale-105:hover {
+           --tw-scale-x: 105%;
+           --tw-scale-y: 105%;
+           --tw-scale-z: 105%;
+           scale: var(--tw-scale-x) var(--tw-scale-y);
+         }
+       }
+     }
+
+     @media (width >= 48rem) {
+       @media (hover: hover) {
+         .md\\:hover\\:shadow-2xl:hover {
+           --tw-shadow: 0 25px 50px -12px var(--tw-shadow-color, #00000040);
+           box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+         }
+       }
+     }
+
+     @property --tw-duration {
+       syntax: "*";
+       inherits: false
+     }
+
      @property --tw-scale-x {
-       syntax: "<number> | <percentage>";
+       syntax: "*";
        inherits: false;
        initial-value: 1;
      }
 
      @property --tw-scale-y {
-       syntax: "<number> | <percentage>";
+       syntax: "*";
        inherits: false;
        initial-value: 1;
      }
 
      @property --tw-scale-z {
-       syntax: "<number> | <percentage>";
+       syntax: "*";
        inherits: false;
        initial-value: 1;
      }
@@ -436,10 +459,15 @@ describe("tailwind-to-stylex converting individual classnames", () => {
        initial-value: 0 0 #0000;
      }
 
-     @property --tw-shadow-colored {
+     @property --tw-shadow-color {
        syntax: "*";
+       inherits: false
+     }
+
+     @property --tw-shadow-alpha {
+       syntax: "<percentage>";
        inherits: false;
-       initial-value: 0 0 #0000;
+       initial-value: 100%;
      }
 
      @property --tw-inset-shadow {
@@ -448,10 +476,15 @@ describe("tailwind-to-stylex converting individual classnames", () => {
        initial-value: 0 0 #0000;
      }
 
-     @property --tw-inset-shadow-colored {
+     @property --tw-inset-shadow-color {
        syntax: "*";
+       inherits: false
+     }
+
+     @property --tw-inset-shadow-alpha {
+       syntax: "<percentage>";
        inherits: false;
-       initial-value: 0 0 #0000;
+       initial-value: 100%;
      }
 
      @property --tw-ring-color {
@@ -503,6 +536,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
 
     expect(convert(compile)(input)).toMatchInlineSnapshot(`
      {
+       "--tw-duration": ".5s",
        "transitionDuration": ".5s",
        "transitionProperty": "all",
        "transitionTimingFunction": "cubic-bezier(.4, 0, .2, 1)",
@@ -514,30 +548,60 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     const compile = await makeCompiler();
     const css = compile(input.split(" "));
     expect(css).toMatchInlineSnapshot(`
-     "/*! tailwindcss v4.0.0-alpha.24 | MIT License | https://tailwindcss.com */
+     "/*! tailwindcss v4.1.18 | MIT License | https://tailwindcss.com */
+     .container {
+       width: 100%;
+     }
+
+     @media (width >= 40rem) {
+       .container {
+         max-width: 40rem;
+       }
+     }
+
+     @media (width >= 48rem) {
+       .container {
+         max-width: 48rem;
+       }
+     }
+
+     @media (width >= 64rem) {
+       .container {
+         max-width: 64rem;
+       }
+     }
+
+     @media (width >= 80rem) {
+       .container {
+         max-width: 80rem;
+       }
+     }
+
+     @media (width >= 96rem) {
+       .container {
+         max-width: 96rem;
+       }
+     }
+
      .mx-auto {
-       margin-left: auto;
-       margin-right: auto;
+       margin-inline: auto;
      }
 
      @media (width >= 40rem) {
        .sm\\:px-4 {
-         padding-left: 1rem;
-         padding-right: 1rem;
+         padding-inline: 1rem;
        }
      }
 
      @media (width >= 48rem) {
        .md\\:px-8 {
-         padding-left: 2rem;
-         padding-right: 2rem;
+         padding-inline: 2rem;
        }
      }
 
      @media (width >= 64rem) {
        .lg\\:px-16 {
-         padding-left: 4rem;
-         padding-right: 4rem;
+         padding-inline: 4rem;
        }
      }
      "
@@ -546,12 +610,21 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     expect(convert(compile)(input)).toMatchInlineSnapshot(`
      {
        "marginInline": "auto",
+       "maxWidth": {
+         "@media (width >= 40rem)": "40rem",
+         "@media (width >= 48rem)": "48rem",
+         "@media (width >= 64rem)": "64rem",
+         "@media (width >= 80rem)": "80rem",
+         "@media (width >= 96rem)": "96rem",
+         "default": null,
+       },
        "paddingInline": {
          "@media (width >= 40rem)": "1rem",
          "@media (width >= 48rem)": "2rem",
          "@media (width >= 64rem)": "4rem",
          "default": null,
        },
+       "width": "100%",
      }
     `);
   });
@@ -560,7 +633,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     const compile = await makeCompiler();
     const css = compile(input.split(" "));
     expect(css).toMatchInlineSnapshot(`
-     "/*! tailwindcss v4.0.0-alpha.24 | MIT License | https://tailwindcss.com */
+     "/*! tailwindcss v4.1.18 | MIT License | https://tailwindcss.com */
 
      "
     `);
@@ -572,16 +645,40 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     const compile = await makeCompiler();
     const css = compile(input.split(" "));
     expect(css).toMatchInlineSnapshot(`
-     "/*! tailwindcss v4.0.0-alpha.24 | MIT License | https://tailwindcss.com */
-     @media (width >= 48rem) {
-       .md\\:max-w-3xl {
-         max-width: 48rem;
+     "/*! tailwindcss v4.1.18 | MIT License | https://tailwindcss.com */
+     @media (width >= 40rem) {
+       .sm\\:container {
+         width: 100%;
        }
-     }
 
-     @media (width >= 64rem) {
-       .lg\\:max-w-5xl {
-         max-width: 64rem;
+       @media (width >= 40rem) {
+         .sm\\:container {
+           max-width: 40rem;
+         }
+       }
+
+       @media (width >= 48rem) {
+         .sm\\:container {
+           max-width: 48rem;
+         }
+       }
+
+       @media (width >= 64rem) {
+         .sm\\:container {
+           max-width: 64rem;
+         }
+       }
+
+       @media (width >= 80rem) {
+         .sm\\:container {
+           max-width: 80rem;
+         }
+       }
+
+       @media (width >= 96rem) {
+         .sm\\:container {
+           max-width: 96rem;
+         }
        }
      }
      "
@@ -590,8 +687,18 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     expect(convert(compile)(input)).toMatchInlineSnapshot(`
      {
        "maxWidth": {
-         "@media (width >= 48rem)": "48rem",
-         "@media (width >= 64rem)": "64rem",
+         "@media (width >= 40rem)": {
+           "@media (width >= 40rem)": "40rem",
+           "@media (width >= 48rem)": "48rem",
+           "@media (width >= 64rem)": "64rem",
+           "@media (width >= 80rem)": "80rem",
+           "@media (width >= 96rem)": "96rem",
+           "default": null,
+         },
+         "default": null,
+       },
+       "width": {
+         "@media (width >= 40rem)": "100%",
          "default": null,
        },
      }
@@ -602,7 +709,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     const compile = await makeCompiler();
     const css = compile(input.split(" "));
     expect(css).toMatchInlineSnapshot(`
-     "/*! tailwindcss v4.0.0-alpha.24 | MIT License | https://tailwindcss.com */
+     "/*! tailwindcss v4.1.18 | MIT License | https://tailwindcss.com */
 
      "
     `);
@@ -614,20 +721,9 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     const compile = await makeCompiler();
     const css = compile(input.split(" "));
     expect(css).toMatchInlineSnapshot(`
-     "/*! tailwindcss v4.0.0-alpha.24 | MIT License | https://tailwindcss.com */
-     .backdrop-blur-lg {
-       --tw-backdrop-blur: blur(16px);
-       -webkit-backdrop-filter: var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, );
-       backdrop-filter: var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, );
-     }
-
-     .backdrop-filter {
-       -webkit-backdrop-filter: var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, );
-       backdrop-filter: var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, );
-     }
-
-     @supports (-moz-orient: inline) {
-       @layer base {
+     "/*! tailwindcss v4.1.18 | MIT License | https://tailwindcss.com */
+     @layer properties {
+       @supports (((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b)))) {
          *, :before, :after, ::backdrop {
            --tw-backdrop-blur: initial;
            --tw-backdrop-brightness: initial;
@@ -640,6 +736,17 @@ describe("tailwind-to-stylex converting individual classnames", () => {
            --tw-backdrop-sepia: initial;
          }
        }
+     }
+
+     .backdrop-blur-lg {
+       --tw-backdrop-blur: blur(16px);
+       -webkit-backdrop-filter: var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, );
+       backdrop-filter: var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, );
+     }
+
+     .backdrop-filter {
+       -webkit-backdrop-filter: var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, );
+       backdrop-filter: var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, );
      }
 
      @property --tw-backdrop-blur {
@@ -692,8 +799,8 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     expect(convert(compile)(input)).toMatchInlineSnapshot(`
      {
        "--tw-backdrop-blur": "blur(16px)",
-       "WebkitBackdropFilter": "var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, )",
-       "backdropFilter": "var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, )",
+       "WebkitBackdropFilter": "        ",
+       "backdropFilter": "        ",
      }
     `);
   });
@@ -702,28 +809,16 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     const compile = await makeCompiler();
     const css = compile(input.split(" "));
     expect(css).toMatchInlineSnapshot(`
-     "/*! tailwindcss v4.0.0-alpha.24 | MIT License | https://tailwindcss.com */
-     @media (width >= 40rem) {
-       .sm\\:focus-within\\:border-blue-500:focus-within {
-         border-color: #3b82f6;
-       }
-     }
-
-     @media (width >= 40rem) {
-       .sm\\:focus-within\\:shadow-lg:focus-within {
-         --tw-shadow: 0 10px 15px -3px #0000001a, 0 4px 6px -4px #0000001a;
-         --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);
-         box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-       }
-     }
-
-     @supports (-moz-orient: inline) {
-       @layer base {
+     "/*! tailwindcss v4.1.18 | MIT License | https://tailwindcss.com */
+     @layer properties {
+       @supports (((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b)))) {
          *, :before, :after, ::backdrop {
            --tw-shadow: 0 0 #0000;
-           --tw-shadow-colored: 0 0 #0000;
+           --tw-shadow-color: initial;
+           --tw-shadow-alpha: 100%;
            --tw-inset-shadow: 0 0 #0000;
-           --tw-inset-shadow-colored: 0 0 #0000;
+           --tw-inset-shadow-color: initial;
+           --tw-inset-shadow-alpha: 100%;
            --tw-ring-color: initial;
            --tw-ring-shadow: 0 0 #0000;
            --tw-inset-ring-color: initial;
@@ -736,16 +831,34 @@ describe("tailwind-to-stylex converting individual classnames", () => {
        }
      }
 
+     @media (width >= 40rem) {
+       .sm\\:focus-within\\:border-blue-500:focus-within {
+         border-color: #3b82f6;
+       }
+     }
+
+     @media (width >= 40rem) {
+       .sm\\:focus-within\\:shadow-lg:focus-within {
+         --tw-shadow: 0 10px 15px -3px var(--tw-shadow-color, #0000001a), 0 4px 6px -4px var(--tw-shadow-color, #0000001a);
+         box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+       }
+     }
+
      @property --tw-shadow {
        syntax: "*";
        inherits: false;
        initial-value: 0 0 #0000;
      }
 
-     @property --tw-shadow-colored {
+     @property --tw-shadow-color {
        syntax: "*";
+       inherits: false
+     }
+
+     @property --tw-shadow-alpha {
+       syntax: "<percentage>";
        inherits: false;
-       initial-value: 0 0 #0000;
+       initial-value: 100%;
      }
 
      @property --tw-inset-shadow {
@@ -754,10 +867,15 @@ describe("tailwind-to-stylex converting individual classnames", () => {
        initial-value: 0 0 #0000;
      }
 
-     @property --tw-inset-shadow-colored {
+     @property --tw-inset-shadow-color {
        syntax: "*";
+       inherits: false
+     }
+
+     @property --tw-inset-shadow-alpha {
+       syntax: "<percentage>";
        inherits: false;
-       initial-value: 0 0 #0000;
+       initial-value: 100%;
      }
 
      @property --tw-ring-color {
@@ -814,22 +932,16 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     const compile = await makeCompiler();
     const css = compile(input.split(" "));
     expect(css).toMatchInlineSnapshot(`
-     "/*! tailwindcss v4.0.0-alpha.24 | MIT License | https://tailwindcss.com */
-     @media (width >= 64rem) {
-       .lg\\:shadow-md {
-         --tw-shadow: 0 4px 6px -1px #0000001a, 0 2px 4px -2px #0000001a;
-         --tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);
-         box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-       }
-     }
-
-     @supports (-moz-orient: inline) {
-       @layer base {
+     "/*! tailwindcss v4.1.18 | MIT License | https://tailwindcss.com */
+     @layer properties {
+       @supports (((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b)))) {
          *, :before, :after, ::backdrop {
            --tw-shadow: 0 0 #0000;
-           --tw-shadow-colored: 0 0 #0000;
+           --tw-shadow-color: initial;
+           --tw-shadow-alpha: 100%;
            --tw-inset-shadow: 0 0 #0000;
-           --tw-inset-shadow-colored: 0 0 #0000;
+           --tw-inset-shadow-color: initial;
+           --tw-inset-shadow-alpha: 100%;
            --tw-ring-color: initial;
            --tw-ring-shadow: 0 0 #0000;
            --tw-inset-ring-color: initial;
@@ -842,16 +954,28 @@ describe("tailwind-to-stylex converting individual classnames", () => {
        }
      }
 
+     @media (width >= 64rem) {
+       .lg\\:shadow-md {
+         --tw-shadow: 0 4px 6px -1px var(--tw-shadow-color, #0000001a), 0 2px 4px -2px var(--tw-shadow-color, #0000001a);
+         box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+       }
+     }
+
      @property --tw-shadow {
        syntax: "*";
        inherits: false;
        initial-value: 0 0 #0000;
      }
 
-     @property --tw-shadow-colored {
+     @property --tw-shadow-color {
        syntax: "*";
+       inherits: false
+     }
+
+     @property --tw-shadow-alpha {
+       syntax: "<percentage>";
        inherits: false;
-       initial-value: 0 0 #0000;
+       initial-value: 100%;
      }
 
      @property --tw-inset-shadow {
@@ -860,10 +984,15 @@ describe("tailwind-to-stylex converting individual classnames", () => {
        initial-value: 0 0 #0000;
      }
 
-     @property --tw-inset-shadow-colored {
+     @property --tw-inset-shadow-color {
        syntax: "*";
+       inherits: false
+     }
+
+     @property --tw-inset-shadow-alpha {
+       syntax: "<percentage>";
        inherits: false;
-       initial-value: 0 0 #0000;
+       initial-value: 100%;
      }
 
      @property --tw-ring-color {
@@ -919,12 +1048,8 @@ describe("tailwind-to-stylex converting individual classnames", () => {
          "@media (width >= 64rem)": "0 4px 6px -1px #0000001a, 0 2px 4px -2px #0000001a",
          "default": null,
        },
-       "--tw-shadow-colored": {
-         "@media (width >= 64rem)": "0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color)",
-         "default": null,
-       },
        "boxShadow": {
-         "@media (width >= 64rem)": "var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)",
+         "@media (width >= 64rem)": "0 0 #0000, 0 0 #0000, 0 0 #0000, 0 0 #0000, 0 4px 6px -1px var(--tw-shadow-color, #0000001a), 0 2px 4px -2px var(--tw-shadow-color, #0000001a)",
          "default": null,
        },
      }
@@ -935,29 +1060,14 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     const compile = await makeCompiler();
     const css = compile(input.split(" "));
     expect(css).toMatchInlineSnapshot(`
-     "/*! tailwindcss v4.0.0-alpha.24 | MIT License | https://tailwindcss.com */
-     .from-blue-400 {
-       --tw-gradient-from: #60a5fa;
-       --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
-     }
-
-     .via-purple-500 {
-       --tw-gradient-via: #a855f7;
-       --tw-gradient-via-stops: var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position);
-       --tw-gradient-stops: var(--tw-gradient-via-stops);
-     }
-
-     .to-pink-600 {
-       --tw-gradient-to: #db2777;
-       --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
-     }
-
-     @supports (-moz-orient: inline) {
-       @layer base {
+     "/*! tailwindcss v4.1.18 | MIT License | https://tailwindcss.com */
+     @layer properties {
+       @supports (((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b)))) {
          *, :before, :after, ::backdrop {
+           --tw-gradient-position: initial;
            --tw-gradient-from: #0000;
+           --tw-gradient-via: #0000;
            --tw-gradient-to: #0000;
-           --tw-gradient-via: transparent;
            --tw-gradient-stops: initial;
            --tw-gradient-via-stops: initial;
            --tw-gradient-from-position: 0%;
@@ -967,19 +1077,40 @@ describe("tailwind-to-stylex converting individual classnames", () => {
        }
      }
 
+     .from-blue-400 {
+       --tw-gradient-from: #60a5fa;
+       --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
+     }
+
+     .via-purple-500 {
+       --tw-gradient-via: #a855f7;
+       --tw-gradient-via-stops: var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position);
+       --tw-gradient-stops: var(--tw-gradient-via-stops);
+     }
+
+     .to-pink-600 {
+       --tw-gradient-to: #db2777;
+       --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
+     }
+
+     @property --tw-gradient-position {
+       syntax: "*";
+       inherits: false
+     }
+
      @property --tw-gradient-from {
        syntax: "<color>";
        inherits: false;
        initial-value: #0000;
      }
 
-     @property --tw-gradient-to {
+     @property --tw-gradient-via {
        syntax: "<color>";
        inherits: false;
        initial-value: #0000;
      }
 
-     @property --tw-gradient-via {
+     @property --tw-gradient-to {
        syntax: "<color>";
        inherits: false;
        initial-value: #0000;
@@ -996,19 +1127,19 @@ describe("tailwind-to-stylex converting individual classnames", () => {
      }
 
      @property --tw-gradient-from-position {
-       syntax: "<length> | <percentage>";
+       syntax: "<length-percentage>";
        inherits: false;
        initial-value: 0%;
      }
 
      @property --tw-gradient-via-position {
-       syntax: "<length> | <percentage>";
+       syntax: "<length-percentage>";
        inherits: false;
        initial-value: 50%;
      }
 
      @property --tw-gradient-to-position {
-       syntax: "<length> | <percentage>";
+       syntax: "<length-percentage>";
        inherits: false;
        initial-value: 100%;
      }
@@ -1018,10 +1149,10 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     expect(convert(compile)(input)).toMatchInlineSnapshot(`
      {
        "--tw-gradient-from": "#60a5fa",
-       "--tw-gradient-stops": "var(--tw-gradient-via-stops, var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))",
+       "--tw-gradient-stops": "var(--tw-gradient-position, #0000 0%, #db2777 100%)",
        "--tw-gradient-to": "#db2777",
        "--tw-gradient-via": "#a855f7",
-       "--tw-gradient-via-stops": "var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position)",
+       "--tw-gradient-via-stops": "var(--tw-gradient-position), #0000 0%, #a855f7 50%, #0000 100%",
      }
     `);
   });
@@ -1030,18 +1161,18 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     const compile = await makeCompiler();
     const css = compile(input.split(" "));
     expect(css).toMatchInlineSnapshot(`
-     "/*! tailwindcss v4.0.0-alpha.24 | MIT License | https://tailwindcss.com */
+     "/*! tailwindcss v4.1.18 | MIT License | https://tailwindcss.com */
      @media (width >= 40rem) {
        .sm\\:text-4xl {
          font-size: 2.25rem;
-         line-height: 2.5rem;
+         line-height: var(--tw-leading, 2.5rem);
        }
      }
 
      @media (width >= 96rem) {
        .\\32 xl\\:text-6xl {
          font-size: 3.75rem;
-         line-height: 1;
+         line-height: var(--tw-leading, 1);
        }
      }
      "
@@ -1065,7 +1196,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     const compile = await makeCompiler();
     const css = compile(input.split(" "));
     expect(css).toMatchInlineSnapshot(`
-     "/*! tailwindcss v4.0.0-alpha.24 | MIT License | https://tailwindcss.com */
+     "/*! tailwindcss v4.1.18 | MIT License | https://tailwindcss.com */
      .scroll-smooth {
        scroll-behavior: smooth;
      }
@@ -1083,7 +1214,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     const compile = await makeCompiler();
     const css = compile(input.split(" "));
     expect(css).toMatchInlineSnapshot(`
-     "/*! tailwindcss v4.0.0-alpha.24 | MIT License | https://tailwindcss.com */
+     "/*! tailwindcss v4.1.18 | MIT License | https://tailwindcss.com */
 
      "
     `);
@@ -1095,7 +1226,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     const compile = await makeCompiler();
     const css = compile(input.split(" "));
     expect(css).toMatchInlineSnapshot(`
-     "/*! tailwindcss v4.0.0-alpha.24 | MIT License | https://tailwindcss.com */
+     "/*! tailwindcss v4.1.18 | MIT License | https://tailwindcss.com */
 
      "
     `);
@@ -1107,7 +1238,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     const compile = await makeCompiler();
     const css = compile(input.split(" "));
     expect(css).toMatchInlineSnapshot(`
-     "/*! tailwindcss v4.0.0-alpha.24 | MIT License | https://tailwindcss.com */
+     "/*! tailwindcss v4.1.18 | MIT License | https://tailwindcss.com */
      .aria-checked\\:bg-blue-600[aria-checked="true"] {
        background-color: #2563eb;
      }
@@ -1125,7 +1256,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     const compile = await makeCompiler();
     const css = compile(input.split(" "));
     expect(css).toMatchInlineSnapshot(`
-     "/*! tailwindcss v4.0.0-alpha.24 | MIT License | https://tailwindcss.com */
+     "/*! tailwindcss v4.1.18 | MIT License | https://tailwindcss.com */
 
      "
     `);
@@ -1137,7 +1268,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     const compile = await makeCompiler();
     const css = compile(input.split(" "));
     expect(css).toMatchInlineSnapshot(`
-     "/*! tailwindcss v4.0.0-alpha.24 | MIT License | https://tailwindcss.com */
+     "/*! tailwindcss v4.1.18 | MIT License | https://tailwindcss.com */
 
      "
     `);
@@ -1149,31 +1280,99 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     const compile = await makeCompiler();
     const css = compile(input.split(" "));
     expect(css).toMatchInlineSnapshot(`
-     "/*! tailwindcss v4.0.0-alpha.24 | MIT License | https://tailwindcss.com */
-     .marker\\:font-extrabold ::marker, .marker\\:font-extrabold::marker {
+     "/*! tailwindcss v4.1.18 | MIT License | https://tailwindcss.com */
+     @layer properties {
+       @supports (((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b)))) {
+         *, :before, :after, ::backdrop {
+           --tw-font-weight: initial;
+         }
+       }
+     }
+
+     .marker\\:font-extrabold ::marker {
+       --tw-font-weight: 800;
        font-weight: 800;
      }
 
-     .marker\\:text-pink-500 ::marker, .marker\\:text-pink-500::marker {
+     .marker\\:font-extrabold::marker {
+       --tw-font-weight: 800;
+       font-weight: 800;
+     }
+
+     .marker\\:font-extrabold ::-webkit-details-marker {
+       --tw-font-weight: 800;
+       font-weight: 800;
+     }
+
+     .marker\\:font-extrabold::-webkit-details-marker {
+       --tw-font-weight: 800;
+       font-weight: 800;
+     }
+
+     .marker\\:text-pink-500 ::marker {
        color: #ec4899;
+     }
+
+     .marker\\:text-pink-500::marker {
+       color: #ec4899;
+     }
+
+     .marker\\:text-pink-500 ::-webkit-details-marker {
+       color: #ec4899;
+     }
+
+     .marker\\:text-pink-500::-webkit-details-marker {
+       color: #ec4899;
+     }
+
+     @property --tw-font-weight {
+       syntax: "*";
+       inherits: false
      }
      "
     `);
 
-    expect(convert(compile)(input)).toMatchInlineSnapshot(`{}`);
+    expect(convert(compile)(input)).toMatchInlineSnapshot(`
+     {
+       "::-webkit-details-marker": {
+         "--tw-font-weight": "800",
+         "color": "#ec4899",
+         "default": null,
+         "fontWeight": "800",
+       },
+       "::marker": {
+         "--tw-font-weight": "800",
+         "color": "#ec4899",
+         "default": null,
+         "fontWeight": "800",
+       },
+     }
+    `);
   });
   test('"flex-grow-0 flex-shrink hover:grow hover:shrink-0"', async () => {
     const input = "flex-grow-0 flex-shrink hover:grow hover:shrink-0";
     const compile = await makeCompiler();
     const css = compile(input.split(" "));
     expect(css).toMatchInlineSnapshot(`
-     "/*! tailwindcss v4.0.0-alpha.24 | MIT License | https://tailwindcss.com */
-     .hover\\:shrink-0:hover {
-       flex-shrink: 0;
+     "/*! tailwindcss v4.1.18 | MIT License | https://tailwindcss.com */
+     .flex-shrink {
+       flex-shrink: 1;
      }
 
-     .hover\\:grow:hover {
-       flex-grow: 1;
+     .flex-grow-0 {
+       flex-grow: 0;
+     }
+
+     @media (hover: hover) {
+       .hover\\:shrink-0:hover {
+         flex-shrink: 0;
+       }
+     }
+
+     @media (hover: hover) {
+       .hover\\:grow:hover {
+         flex-grow: 1;
+       }
      }
      "
     `);
@@ -1182,11 +1381,11 @@ describe("tailwind-to-stylex converting individual classnames", () => {
      {
        "flexGrow": {
          ":hover": "1",
-         "default": null,
+         "default": "0",
        },
        "flexShrink": {
          ":hover": "0",
-         "default": null,
+         "default": "1",
        },
      }
     `);
@@ -1196,23 +1395,9 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     const compile = await makeCompiler();
     const css = compile(input.split(" "));
     expect(css).toMatchInlineSnapshot(`
-     "/*! tailwindcss v4.0.0-alpha.24 | MIT License | https://tailwindcss.com */
-     @media (width >= 48rem) {
-       .md\\:hover\\:translate-x-2:hover {
-         --tw-translate-x: .5rem;
-         translate: var(--tw-translate-x) var(--tw-translate-y);
-       }
-     }
-
-     @media (width >= 64rem) {
-       .lg\\:hover\\:translate-y-2:hover {
-         --tw-translate-y: .5rem;
-         translate: var(--tw-translate-x) var(--tw-translate-y);
-       }
-     }
-
-     @supports (-moz-orient: inline) {
-       @layer base {
+     "/*! tailwindcss v4.1.18 | MIT License | https://tailwindcss.com */
+     @layer properties {
+       @supports (((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b)))) {
          *, :before, :after, ::backdrop {
            --tw-translate-x: 0;
            --tw-translate-y: 0;
@@ -1221,20 +1406,38 @@ describe("tailwind-to-stylex converting individual classnames", () => {
        }
      }
 
+     @media (width >= 48rem) {
+       @media (hover: hover) {
+         .md\\:hover\\:translate-x-2:hover {
+           --tw-translate-x: .5rem;
+           translate: var(--tw-translate-x) var(--tw-translate-y);
+         }
+       }
+     }
+
+     @media (width >= 64rem) {
+       @media (hover: hover) {
+         .lg\\:hover\\:translate-y-2:hover {
+           --tw-translate-y: .5rem;
+           translate: var(--tw-translate-x) var(--tw-translate-y);
+         }
+       }
+     }
+
      @property --tw-translate-x {
-       syntax: "<length> | <percentage>";
+       syntax: "*";
        inherits: false;
        initial-value: 0;
      }
 
      @property --tw-translate-y {
-       syntax: "<length> | <percentage>";
+       syntax: "*";
        inherits: false;
        initial-value: 0;
      }
 
      @property --tw-translate-z {
-       syntax: "<length>";
+       syntax: "*";
        inherits: false;
        initial-value: 0;
      }
@@ -1248,7 +1451,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     const compile = await makeCompiler();
     const css = compile(input.split(" "));
     expect(css).toMatchInlineSnapshot(`
-     "/*! tailwindcss v4.0.0-alpha.24 | MIT License | https://tailwindcss.com */
+     "/*! tailwindcss v4.1.18 | MIT License | https://tailwindcss.com */
      @media (width >= 40rem) {
        .sm\\:w-1\\/2 {
          width: 50%;

@@ -210,7 +210,7 @@ npm run dev:compare
 
 ### High Priority
 
-- [ ] **CLI codemod tool** - One-time migration of existing Tailwind codebases
+- [x] **CLI codemod tool** - One-time migration of existing Tailwind codebases
   ```bash
   npx tailwind-to-stylex migrate ./src
   ```
@@ -233,6 +233,7 @@ npm run dev:compare
 
 ### Known Issues
 
+- [ ] **Shadow + ring combination** - Using both `shadow-*` and `ring-*` on the same element doesn't work correctly. Both utilities set the `box-shadow` property, so the last one wins. Tailwind 4 composes these using CSS custom properties (`--tw-shadow`, `--tw-ring-shadow`), but since StyleX generates atomic styles, only one `box-shadow` value can be applied. Workaround: use a single combined shadow value via arbitrary syntax `shadow-[...]`.
 - [ ] Multiple `stylex.create` calls may be inserted if file already has one
 - [ ] Template literals with dynamic expressions (not string literals) are skipped
 - [ ] Some edge cases with complex nested media queries

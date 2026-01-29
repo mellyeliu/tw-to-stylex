@@ -36,6 +36,9 @@ export async function tailwindToStylex(
   const isFlow = source.includes("@flow");
 
   const result = await transformAsync(source, {
+    // Don't pick up project's babel config - we only want our transform
+    configFile: false,
+    babelrc: false,
     plugins: [
       ...(isFlow
         ? ["babel-plugin-syntax-hermes-parser"]

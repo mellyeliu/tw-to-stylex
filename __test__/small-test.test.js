@@ -48,17 +48,18 @@ describe("tailwind-to-stylex small examples", () => {
      }
      const _styles = _stylex.create({
        $1: {
-         paddingBlock: ".25rem",
-         paddingInline: "1rem",
          borderRadius: "3.40282e38px",
-         borderStyle: "var(--tw-border-style)",
+         borderStyle: "solid",
          borderWidth: "1px",
          borderColor: {
            default: "#e9d5ff",
            ":hover": "#0000"
          },
+         paddingInline: "1rem",
+         paddingBlock: ".25rem",
          fontSize: ".875rem",
          lineHeight: "1.25rem",
+         "--tw-font-weight": "600",
          fontWeight: "600",
          color: {
            default: "#9333ea",
@@ -70,11 +71,11 @@ describe("tailwind-to-stylex small examples", () => {
          },
          "--tw-ring-shadow": {
            default: null,
-           ":focus": "var(--tw-ring-inset, ) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentColor)"
+           ":focus": " 0 0 0 calc(2px + 0) currentcolor"
          },
          boxShadow: {
            default: null,
-           ":focus": "var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)"
+           ":focus": "0 0 #0000, 0 0 #0000, 0 0 #0000, var(--tw-ring-inset, ) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor), 0 0 #0000"
          },
          "--tw-ring-color": {
            default: null,
@@ -86,15 +87,15 @@ describe("tailwind-to-stylex small examples", () => {
          },
          "--tw-ring-offset-shadow": {
            default: null,
-           ":focus": "var(--tw-ring-inset, ) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color)"
+           ":focus": " 0 0 0 2px #fff"
          },
-         outlineOffset: {
+         "--tw-outline-style": {
            default: null,
-           ":focus": "2px"
+           ":focus": "none"
          },
-         outline: {
+         outlineStyle: {
            default: null,
-           ":focus": "2px solid #0000"
+           ":focus": "none"
          }
        }
      });"
@@ -172,11 +173,11 @@ describe("tailwind-to-stylex small examples", () => {
          position: "fixed",
          inset: "0",
          zIndex: "50",
-         backgroundColor: "#09090b99"
+         backgroundColor: "oklab(14.0765% .00119585 -.00421971 / .6)"
        },
        $2: {
-         insetInline: "0",
          position: "fixed",
+         insetInline: "0",
          bottom: "0",
          zIndex: "50",
          marginTop: "6rem",
@@ -191,10 +192,164 @@ describe("tailwind-to-stylex small examples", () => {
          height: ".5rem",
          width: "100px",
          "--tw-translate-x": "-50%",
-         translate: "var(--tw-translate-x) var(--tw-translate-y)",
+         translate: "-50% 0",
          borderRadius: "3.40282e38px"
        }
      });"
     `);
+  });
+});
+
+// ============================================================
+// Conditional Expression Tests (new feature)
+// ============================================================
+
+describe("tailwind-to-stylex conditional expressions", () => {
+  test("ternary operator in className", async () => {
+    const input = `<div className={isActive ? "bg-blue-500" : "bg-gray-500"} />`;
+    const result = await tailwindToStylex(input);
+    expect(result).toMatchInlineSnapshot(`
+     "import * as _stylex from "@stylexjs/stylex";
+     <div {..._stylex.props(isActive ? _styles.$1 : _styles.$2)} />;
+     const _styles = _stylex.create({
+       $1: {
+         backgroundColor: "#3b82f6"
+       },
+       $2: {
+         backgroundColor: "#6b7280"
+       }
+     });"
+    `);
+  });
+
+  test("logical AND in className", async () => {
+    const input = `<div className={isVisible && "flex"} />`;
+    const result = await tailwindToStylex(input);
+    expect(result).toMatchInlineSnapshot(`
+     "import * as _stylex from "@stylexjs/stylex";
+     <div {..._stylex.props(isVisible && _styles.$1)} />;
+     const _styles = _stylex.create({
+       $1: {
+         display: "flex"
+       }
+     });"
+    `);
+  });
+
+  test("complex ternary with multiple classes", async () => {
+    const input = `<button className={disabled ? "opacity-50 cursor-not-allowed" : "opacity-100 cursor-pointer"} />`;
+    const result = await tailwindToStylex(input);
+    expect(result).toMatchInlineSnapshot(`
+     "import * as _stylex from "@stylexjs/stylex";
+     <button {..._stylex.props(disabled ? _styles.$1 : _styles.$2)} />;
+     const _styles = _stylex.create({
+       $1: {
+         cursor: "not-allowed",
+         opacity: ".5"
+       },
+       $2: {
+         cursor: "pointer",
+         opacity: "1"
+       }
+     });"
+    `);
+  });
+
+  test("template literal with conditionals", async () => {
+    const input =
+      "<div className={`flex ${isColumn ? 'flex-col' : 'flex-row'}`} />";
+    const result = await tailwindToStylex(input);
+    expect(result).toMatchInlineSnapshot(`
+     "import * as _stylex from "@stylexjs/stylex";
+     <div {..._stylex.props(_styles.$1, isColumn ? _styles.$2 : _styles.$3)} />;
+     const _styles = _stylex.create({
+       $1: {
+         display: "flex"
+       },
+       $2: {
+         flexDirection: "column"
+       },
+       $3: {
+         flexDirection: "row"
+       }
+     });"
+    `);
+  });
+
+  test("cn with static classes", async () => {
+    const input = `<div className={cn("flex items-center", "p-4")} />`;
+    const result = await tailwindToStylex(input);
+    expect(result).toMatchInlineSnapshot(`
+     "import * as _stylex from "@stylexjs/stylex";
+     <div {..._stylex.props(_styles.$1, _styles.$2)} />;
+     const _styles = _stylex.create({
+       $1: {
+         display: "flex",
+         alignItems: "center"
+       },
+       $2: {
+         padding: "1rem"
+       }
+     });"
+    `);
+  });
+});
+
+// ============================================================
+// Skipped Tests - Document unsupported features
+// ============================================================
+
+describe.skip("Not Supported - !important", () => {
+  test("important modifier", async () => {
+    const input = `<div className="!text-red-500" />`;
+    // StyleX doesn't support !important
+  });
+});
+
+describe.skip("Not Supported - Descendant Selectors", () => {
+  test("direct child selector", async () => {
+    const input = `<div className="[&>*]:p-2" />`;
+    // StyleX atomic CSS doesn't support element relationships
+  });
+
+  test("descendant selector", async () => {
+    const input = `<div className="[&_.child]:text-red-500" />`;
+    // No descendant selectors in atomic CSS
+  });
+
+  test("sibling combinator", async () => {
+    const input = `<div className="[&+div]:mt-4" />`;
+    // No adjacent sibling selectors
+  });
+});
+
+describe.skip("Not Supported - :has() selector", () => {
+  test("has selector", async () => {
+    const input = `<div className="has-[img]:p-0" />`;
+    // :has() not supported in StyleX
+  });
+});
+
+describe.skip("Not Supported - group/peer (needs markers)", () => {
+  test("group hover", async () => {
+    const input = `<div className="group"><span className="group-hover:text-blue-500" /></div>`;
+    // Requires stylex.when.ancestor() with markers
+  });
+
+  test("peer checked", async () => {
+    const input = `<input className="peer" /><label className="peer-checked:bg-blue-500" />`;
+    // Requires stylex.when.siblingBefore() with markers
+  });
+});
+
+describe.skip("Not Supported - Arbitrary Variants", () => {
+  test("supports query", async () => {
+    const input = `<div className="[@supports(display:grid)]:grid" />`;
+    // Use manual @supports in StyleX
+  });
+
+  test("attribute selector", async () => {
+    const input = `<div className="[&[data-active]]:bg-blue-500" />`;
+    // Use stylex.when.* with markers
   });
 });

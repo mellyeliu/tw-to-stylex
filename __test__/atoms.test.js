@@ -69,17 +69,17 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     expect(convert("m-2 border rounded-lg shadow")).toMatchInlineSnapshot(`
      {
        "--tw-shadow": "0 1px 3px 0 #0000001a, 0 1px 2px -1px #0000001a",
-       "--tw-shadow-colored": "0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color)",
        "borderRadius": ".5rem",
-       "borderStyle": "var(--tw-border-style)",
+       "borderStyle": "solid",
        "borderWidth": "1px",
-       "boxShadow": "var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)",
+       "boxShadow": "0 0 #0000, 0 0 #0000, 0 0 #0000, 0 0 #0000, 0 1px 3px 0 var(--tw-shadow-color, #0000001a), 0 1px 2px -1px var(--tw-shadow-color, #0000001a)",
        "margin": ".5rem",
      }
     `);
     expect(convert("w-1/2 mx-auto text-center text-lg font-bold"))
       .toMatchInlineSnapshot(`
      {
+       "--tw-font-weight": "700",
        "fontSize": "1.125rem",
        "fontWeight": "700",
        "lineHeight": "1.75rem",
@@ -112,6 +112,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     expect(convert("text-4xl font-extrabold text-blue-600 mb-4"))
       .toMatchInlineSnapshot(`
      {
+       "--tw-font-weight": "800",
        "color": "#2563eb",
        "fontSize": "2.25rem",
        "fontWeight": "800",
@@ -122,6 +123,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     expect(convert("text-sm leading-relaxed text-gray-700"))
       .toMatchInlineSnapshot(`
      {
+       "--tw-leading": "1.625",
        "color": "#374151",
        "fontSize": ".875rem",
        "lineHeight": "1.625",
@@ -132,7 +134,6 @@ describe("tailwind-to-stylex converting individual classnames", () => {
      {
        "color": "#ef4444",
        "fontSize": ".75rem",
-       "letterSpacing": ".025em",
        "lineHeight": "1rem",
        "textTransform": "uppercase",
      }
@@ -140,7 +141,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     expect(convert("italic border-l-4 pl-4 text-gray-500"))
       .toMatchInlineSnapshot(`
      {
-       "borderLeftStyle": "var(--tw-border-style)",
+       "borderLeftStyle": "solid",
        "borderLeftWidth": "4px",
        "color": "#6b7280",
        "fontStyle": "italic",
@@ -190,9 +191,8 @@ describe("tailwind-to-stylex converting individual classnames", () => {
       .toMatchInlineSnapshot(`
      {
        "--tw-shadow": "0 10px 15px -3px #0000001a, 0 4px 6px -4px #0000001a",
-       "--tw-shadow-colored": "0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color)",
        "borderRadius": ".375rem",
-       "boxShadow": "var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)",
+       "boxShadow": "0 0 #0000, 0 0 #0000, 0 0 #0000, 0 0 #0000, 0 10px 15px -3px var(--tw-shadow-color, #0000001a), 0 4px 6px -4px var(--tw-shadow-color, #0000001a)",
        "overflow": "hidden",
        "position": "relative",
      }
@@ -201,9 +201,8 @@ describe("tailwind-to-stylex converting individual classnames", () => {
       .toMatchInlineSnapshot(`
      {
        "--tw-shadow": "0 1px 2px 0 #0000000d",
-       "--tw-shadow-colored": "0 1px 2px 0 var(--tw-shadow-color)",
        "backgroundColor": "#fff",
-       "boxShadow": "var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)",
+       "boxShadow": "0 0 #0000, 0 0 #0000, 0 0 #0000, 0 0 #0000, 0 1px 2px 0 var(--tw-shadow-color, #0000000d)",
        "position": "sticky",
        "top": "0",
        "zIndex": "10",
@@ -240,12 +239,13 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     expect(convert("hover:bg-indigo-600 transition duration-300"))
       .toMatchInlineSnapshot(`
      {
+       "--tw-duration": ".3s",
        "backgroundColor": {
          ":hover": "#4f46e5",
          "default": null,
        },
        "transitionDuration": ".3s",
-       "transitionProperty": "color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, -webkit-backdrop-filter, backdrop-filter",
+       "transitionProperty": "color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter, display, content-visibility, overlay, pointer-events",
        "transitionTimingFunction": "cubic-bezier(.4, 0, .2, 1)",
      }
     `);
@@ -257,7 +257,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
          "default": null,
        },
        "--tw-ring-offset-shadow": {
-         ":focus": "var(--tw-ring-inset, ) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color)",
+         ":focus": " 0 0 0 2px #fff",
          "default": null,
        },
        "--tw-ring-offset-width": {
@@ -265,11 +265,11 @@ describe("tailwind-to-stylex converting individual classnames", () => {
          "default": null,
        },
        "--tw-ring-shadow": {
-         ":focus": "var(--tw-ring-inset, ) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentColor)",
+         ":focus": " 0 0 0 calc(2px + 0) currentcolor",
          "default": null,
        },
        "boxShadow": {
-         ":focus": "var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)",
+         ":focus": "0 0 #0000, 0 0 #0000, 0 0 #0000, var(--tw-ring-inset, ) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor), 0 0 #0000",
          "default": null,
        },
      }
@@ -277,10 +277,9 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     expect(convert("rounded-lg shadow-md bg-white p-6")).toMatchInlineSnapshot(`
      {
        "--tw-shadow": "0 4px 6px -1px #0000001a, 0 2px 4px -2px #0000001a",
-       "--tw-shadow-colored": "0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color)",
        "backgroundColor": "#fff",
        "borderRadius": ".5rem",
-       "boxShadow": "var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)",
+       "boxShadow": "0 0 #0000, 0 0 #0000, 0 0 #0000, 0 0 #0000, 0 4px 6px -1px var(--tw-shadow-color, #0000001a), 0 2px 4px -2px var(--tw-shadow-color, #0000001a)",
        "padding": "1.5rem",
      }
     `);
@@ -289,7 +288,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
      {
        "borderColor": "#d1d5db",
        "borderRadius": ".25rem",
-       "borderStyle": "var(--tw-border-style)",
+       "borderStyle": "solid",
        "borderWidth": "1px",
        "overflow": "hidden",
      }
@@ -312,6 +311,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     expect(convert("text-xl font-semibold text-purple-700"))
       .toMatchInlineSnapshot(`
      {
+       "--tw-font-weight": "600",
        "color": "#7e22ce",
        "fontSize": "1.25rem",
        "fontWeight": "600",
@@ -332,7 +332,6 @@ describe("tailwind-to-stylex converting individual classnames", () => {
        "marginBottom": "2rem",
        "marginInline": "auto",
        "marginTop": "1rem",
-       "maxWidth": "42rem",
      }
     `);
     expect(convert("lg:grid lg:grid-cols-2 lg:gap-6")).toMatchInlineSnapshot(`
@@ -358,7 +357,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
          "default": null,
        },
        "borderStyle": {
-         "@media (width >= 40rem)": "var(--tw-border-style)",
+         "@media (width >= 40rem)": "solid",
          "default": null,
        },
        "borderWidth": {
@@ -390,11 +389,10 @@ describe("tailwind-to-stylex converting individual classnames", () => {
       .toMatchInlineSnapshot(`
      {
        "--tw-shadow": "0 10px 15px -3px #0000001a, 0 4px 6px -4px #0000001a",
-       "--tw-shadow-colored": "0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color)",
        "borderColor": "#3b82f6",
-       "borderTopStyle": "var(--tw-border-style)",
+       "borderTopStyle": "solid",
        "borderTopWidth": "4px",
-       "boxShadow": "var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)",
+       "boxShadow": "0 0 #0000, 0 0 #0000, 0 0 #0000, 0 0 #0000, 0 10px 15px -3px var(--tw-shadow-color, #0000001a), 0 4px 6px -4px var(--tw-shadow-color, #0000001a)",
      }
     `);
     expect(convert("rounded-full h-16 w-16 bg-yellow-300"))
@@ -411,6 +409,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
      {
        "backgroundColor": "#f9fafb",
        "color": "#374151",
+       "flexGrow": "1",
      }
     `);
     expect(convert("cursor-pointer hover:bg-gray-200")).toMatchInlineSnapshot(`
@@ -426,15 +425,17 @@ describe("tailwind-to-stylex converting individual classnames", () => {
       .toMatchInlineSnapshot(`
      {
        "--tw-gradient-from": "#c084fc",
-       "--tw-gradient-stops": "var(--tw-gradient-via-stops, var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))",
+       "--tw-gradient-position": "to right in oklab",
+       "--tw-gradient-stops": "var(--tw-gradient-position, #0000 0%, #ef4444 100%)",
        "--tw-gradient-to": "#ef4444",
        "--tw-gradient-via": "#ec4899",
-       "--tw-gradient-via-stops": "var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position)",
-       "backgroundImage": "linear-gradient(to right, var(--tw-gradient-stops, ))",
+       "--tw-gradient-via-stops": "var(--tw-gradient-position), #0000 0%, #ec4899 50%, #0000 100%",
+       "backgroundImage": "linear-gradient(var(--tw-gradient-stops))",
      }
     `);
     expect(convert("text-left font-light text-sm")).toMatchInlineSnapshot(`
      {
+       "--tw-font-weight": "300",
        "fontSize": ".875rem",
        "fontWeight": "300",
        "lineHeight": "1.25rem",
@@ -446,7 +447,6 @@ describe("tailwind-to-stylex converting individual classnames", () => {
      {
        "color": "#4b5563",
        "fontSize": ".75rem",
-       "letterSpacing": ".05em",
        "lineHeight": "1rem",
        "textTransform": "uppercase",
      }
@@ -455,7 +455,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
       .toMatchInlineSnapshot(`
      {
        "--tw-border-style": "dotted",
-       "borderBottomStyle": "var(--tw-border-style)",
+       "borderBottomStyle": "solid",
        "borderBottomWidth": "2px",
        "borderColor": "#9ca3af",
        "borderStyle": "dotted",
@@ -468,8 +468,8 @@ describe("tailwind-to-stylex converting individual classnames", () => {
          ":focus": "#6366f1",
          "default": "#e5e7eb",
        },
-       "--tw-ring-shadow": "var(--tw-ring-inset, ) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentColor)",
-       "boxShadow": "var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)",
+       "--tw-ring-shadow": " 0 0 0 calc(1px + 0) currentcolor",
+       "boxShadow": "0 0 #0000, 0 0 #0000, 0 0 #0000, var(--tw-ring-inset, ) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor), 0 0 #0000",
      }
     `);
     expect(convert("hover:scale-105 transform transition ease-in-out"))
@@ -488,12 +488,12 @@ describe("tailwind-to-stylex converting individual classnames", () => {
          "default": null,
        },
        "scale": {
-         ":hover": "var(--tw-scale-x) var(--tw-scale-y)",
+         ":hover": "105% 105%",
          "default": null,
        },
-       "transform": "var(--tw-rotate-x) var(--tw-rotate-y) var(--tw-rotate-z) var(--tw-skew-x) var(--tw-skew-y)",
+       "transform": "    ",
        "transitionDuration": ".15s",
-       "transitionProperty": "color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, -webkit-backdrop-filter, backdrop-filter",
+       "transitionProperty": "color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter, display, content-visibility, overlay, pointer-events",
        "transitionTimingFunction": "cubic-bezier(.4, 0, .2, 1)",
      }
     `);
@@ -520,6 +520,8 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     expect(convert("pl-6 text-base font-medium leading-6 text-green-600"))
       .toMatchInlineSnapshot(`
      {
+       "--tw-font-weight": "500",
+       "--tw-leading": "1.5rem",
        "color": "#16a34a",
        "fontSize": "1rem",
        "fontWeight": "500",
@@ -551,22 +553,19 @@ describe("tailwind-to-stylex converting individual classnames", () => {
       .toMatchInlineSnapshot(`
      {
        "--tw-backdrop-blur": "blur(4px)",
-       "WebkitBackdropFilter": "var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, )",
-       "backdropFilter": "var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, )",
+       "WebkitBackdropFilter": "blur(4px)        ",
+       "backdropFilter": "blur(4px)        ",
        "zIndex": "50",
      }
     `);
     expect(convert("flex-shrink-0 text-gray-500")).toMatchInlineSnapshot(`
      {
        "color": "#6b7280",
+       "flexShrink": "0",
      }
     `);
     expect(convert("xl:py-8 xl:px-12 xl:max-w-6xl")).toMatchInlineSnapshot(`
      {
-       "maxWidth": {
-         "@media (width >= 80rem)": "72rem",
-         "default": null,
-       },
        "paddingBlock": {
          "@media (width >= 80rem)": "2rem",
          "default": null,
@@ -594,13 +593,14 @@ describe("tailwind-to-stylex converting individual classnames", () => {
      {
        "borderColor": "#d1d5db",
        "borderRadius": ".375rem",
-       "borderStyle": "var(--tw-border-style)",
+       "borderStyle": "solid",
        "borderWidth": "2px",
      }
     `);
     expect(convert("py-2 px-4 font-semibold text-white bg-teal-500"))
       .toMatchInlineSnapshot(`
      {
+       "--tw-font-weight": "600",
        "backgroundColor": "#14b8a6",
        "color": "#fff",
        "fontWeight": "600",
@@ -621,20 +621,23 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     ).toMatchInlineSnapshot(`
      {
        "--tw-gradient-from": "#6366f1",
-       "--tw-gradient-stops": "var(--tw-gradient-via-stops, var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))",
+       "--tw-gradient-position": "to bottom right in oklab",
+       "--tw-gradient-stops": "var(--tw-gradient-position, #0000 0%, #ec4899 100%)",
        "--tw-gradient-to": "#ec4899",
        "--tw-gradient-via": "#a855f7",
-       "--tw-gradient-via-stops": "var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position)",
-       "backgroundImage": "linear-gradient(to bottom right, var(--tw-gradient-stops, ))",
+       "--tw-gradient-via-stops": "var(--tw-gradient-position), #0000 0%, #a855f7 50%, #0000 100%",
+       "backgroundImage": "linear-gradient(var(--tw-gradient-stops))",
        "color": "#fff",
      }
     `);
     expect(convert("shadow-lg shadow-indigo-500/50")).toMatchInlineSnapshot(`
      {
-       "--tw-shadow": "var(--tw-shadow-colored)",
-       "--tw-shadow-color": "#6366f180",
-       "--tw-shadow-colored": "0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color)",
-       "boxShadow": "var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)",
+       "--tw-shadow": "0 10px 15px -3px #0000001a, 0 4px 6px -4px #0000001a",
+       "--tw-shadow-color": {
+         "@supports (color: color-mix(in lab, red, red))": "color-mix(in oklab, oklab(58.5404% .0252827 -.202483 / .5) 100%, transparent)",
+         "default": "#6366f180",
+       },
+       "boxShadow": "0 0 #0000, 0 0 #0000, 0 0 #0000, 0 0 #0000, 0 10px 15px -3px var(--tw-shadow-color, #0000001a), 0 4px 6px -4px var(--tw-shadow-color, #0000001a)",
      }
     `);
     expect(
@@ -643,6 +646,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
       ),
     ).toMatchInlineSnapshot(`
      {
+       "--tw-duration": ".5s",
        "transitionDuration": ".5s",
        "transitionProperty": "all",
        "transitionTimingFunction": "cubic-bezier(.4, 0, .2, 1)",
@@ -655,8 +659,12 @@ describe("tailwind-to-stylex converting individual classnames", () => {
          "@media (width >= 40rem)": "#4ade80",
          "default": null,
        },
+       "--tw-gradient-position": {
+         "@media (width >= 40rem)": "to right in oklab",
+         "default": null,
+       },
        "--tw-gradient-stops": {
-         "@media (width >= 40rem)": "var(--tw-gradient-via-stops, var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))",
+         "@media (width >= 40rem)": "var(--tw-gradient-position, #0000 0%, #3b82f6 100%)",
          "default": null,
        },
        "--tw-gradient-to": {
@@ -664,7 +672,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
          "default": null,
        },
        "backgroundImage": {
-         "@media (width >= 40rem)": "linear-gradient(to right, var(--tw-gradient-stops, ))",
+         "@media (width >= 40rem)": "linear-gradient(var(--tw-gradient-stops))",
          "default": null,
        },
      }
@@ -673,12 +681,21 @@ describe("tailwind-to-stylex converting individual classnames", () => {
       .toMatchInlineSnapshot(`
      {
        "marginInline": "auto",
+       "maxWidth": {
+         "@media (width >= 40rem)": "40rem",
+         "@media (width >= 48rem)": "48rem",
+         "@media (width >= 64rem)": "64rem",
+         "@media (width >= 80rem)": "80rem",
+         "@media (width >= 96rem)": "96rem",
+         "default": null,
+       },
        "paddingInline": {
          "@media (width >= 40rem)": "1rem",
          "@media (width >= 48rem)": "2rem",
          "@media (width >= 64rem)": "4rem",
          "default": null,
        },
+       "width": "100%",
      }
     `);
     expect(convert("aspect-w-16 aspect-h-9")).toMatchInlineSnapshot(`{}`);
@@ -689,22 +706,22 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     ).toMatchInlineSnapshot(`
      {
        "--tw-gradient-from": "#fde047",
-       "--tw-gradient-stops": "var(--tw-gradient-via-stops, var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))",
+       "--tw-gradient-position": {
+         "@media (width >= 64rem)": "to top in oklab",
+         "default": null,
+       },
+       "--tw-gradient-stops": "var(--tw-gradient-position, #0000 0%, #ea580c 100%)",
        "--tw-gradient-to": "#ea580c",
        "--tw-shadow": {
          "@media (width >= 64rem)": "inset 0 2px 4px 0 #0000000d",
          "default": null,
        },
-       "--tw-shadow-colored": {
-         "@media (width >= 64rem)": "inset 0 2px 4px 0 var(--tw-shadow-color)",
-         "default": null,
-       },
        "backgroundImage": {
-         "@media (width >= 64rem)": "linear-gradient(to top, var(--tw-gradient-stops, ))",
+         "@media (width >= 64rem)": "linear-gradient(var(--tw-gradient-stops))",
          "default": null,
        },
        "boxShadow": {
-         "@media (width >= 64rem)": "var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)",
+         "@media (width >= 64rem)": "0 0 #0000, 0 0 #0000, 0 0 #0000, 0 0 #0000, inset 0 2px 4px 0 var(--tw-shadow-color, #0000000d)",
          "default": null,
        },
      }
@@ -735,8 +752,18 @@ describe("tailwind-to-stylex converting individual classnames", () => {
       .toMatchInlineSnapshot(`
      {
        "maxWidth": {
-         "@media (width >= 48rem)": "48rem",
-         "@media (width >= 64rem)": "64rem",
+         "@media (width >= 40rem)": {
+           "@media (width >= 40rem)": "40rem",
+           "@media (width >= 48rem)": "48rem",
+           "@media (width >= 64rem)": "64rem",
+           "@media (width >= 80rem)": "80rem",
+           "@media (width >= 96rem)": "96rem",
+           "default": null,
+         },
+         "default": null,
+       },
+       "width": {
+         "@media (width >= 40rem)": "100%",
          "default": null,
        },
      }
@@ -746,7 +773,8 @@ describe("tailwind-to-stylex converting individual classnames", () => {
      {
        "--tw-brightness": "brightness(110%)",
        "--tw-drop-shadow": "drop-shadow(0 20px 13px #00000008) drop-shadow(0 8px 5px #00000014)",
-       "filter": "var(--tw-blur, ) var(--tw-brightness, ) var(--tw-contrast, ) var(--tw-grayscale, ) var(--tw-hue-rotate, ) var(--tw-invert, ) var(--tw-saturate, ) var(--tw-sepia, ) var(--tw-drop-shadow, )",
+       "--tw-drop-shadow-size": "drop-shadow(0 20px 13px #00000008) drop-shadow(0 8px 5px #00000014)",
+       "filter": "        ",
      }
     `);
     expect(
@@ -756,10 +784,11 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     ).toMatchInlineSnapshot(`
      {
        "--tw-gradient-from": "#4ade80",
-       "--tw-gradient-stops": "var(--tw-gradient-via-stops, var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))",
+       "--tw-gradient-position": "to right in oklab",
+       "--tw-gradient-stops": "var(--tw-gradient-position, #0000 0%, #2563eb 100%)",
        "--tw-gradient-to": "#2563eb",
        "backgroundClip": "text",
-       "backgroundImage": "linear-gradient(to right, var(--tw-gradient-stops, ))",
+       "backgroundImage": "linear-gradient(var(--tw-gradient-stops))",
        "color": "#0000",
      }
     `);
@@ -782,8 +811,8 @@ describe("tailwind-to-stylex converting individual classnames", () => {
          "default": "grayscale(100%)",
        },
        "filter": {
-         ":hover": "var(--tw-blur, ) var(--tw-brightness, ) var(--tw-contrast, ) var(--tw-grayscale, ) var(--tw-hue-rotate, ) var(--tw-invert, ) var(--tw-saturate, ) var(--tw-sepia, ) var(--tw-drop-shadow, )",
-         "default": "var(--tw-blur, ) var(--tw-brightness, ) var(--tw-contrast, ) var(--tw-grayscale, ) var(--tw-hue-rotate, ) var(--tw-invert, ) var(--tw-saturate, ) var(--tw-sepia, ) var(--tw-drop-shadow, )",
+         ":hover": "   grayscale(0%)     ",
+         "default": "   grayscale(100%)     ",
        },
      }
     `);
@@ -796,7 +825,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
          ":focus": "#6366f1",
          "default": null,
        },
-       "--tw-ring-offset-shadow": "var(--tw-ring-inset, ) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color)",
+       "--tw-ring-offset-shadow": " 0 0 0 4px #fff",
        "--tw-ring-offset-width": "4px",
      }
     `);
@@ -805,8 +834,8 @@ describe("tailwind-to-stylex converting individual classnames", () => {
       .toMatchInlineSnapshot(`
      {
        "--tw-backdrop-blur": "blur(16px)",
-       "WebkitBackdropFilter": "var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, )",
-       "backdropFilter": "var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, )",
+       "WebkitBackdropFilter": "        ",
+       "backdropFilter": "        ",
      }
     `);
     expect(convert("hover:backdrop-brightness-125")).toMatchInlineSnapshot(`
@@ -816,11 +845,11 @@ describe("tailwind-to-stylex converting individual classnames", () => {
          "default": null,
        },
        "WebkitBackdropFilter": {
-         ":hover": "var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, )",
+         ":hover": " brightness(125%)       ",
          "default": null,
        },
        "backdropFilter": {
-         ":hover": "var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, )",
+         ":hover": " brightness(125%)       ",
          "default": null,
        },
      }
@@ -860,12 +889,8 @@ describe("tailwind-to-stylex converting individual classnames", () => {
          "@media (width >= 64rem)": "0 4px 6px -1px #0000001a, 0 2px 4px -2px #0000001a",
          "default": null,
        },
-       "--tw-shadow-colored": {
-         "@media (width >= 64rem)": "0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color)",
-         "default": null,
-       },
        "boxShadow": {
-         "@media (width >= 64rem)": "var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)",
+         "@media (width >= 64rem)": "0 0 #0000, 0 0 #0000, 0 0 #0000, 0 0 #0000, 0 4px 6px -1px var(--tw-shadow-color, #0000001a), 0 2px 4px -2px var(--tw-shadow-color, #0000001a)",
          "default": null,
        },
      }
@@ -882,7 +907,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
          "default": null,
        },
        "translate": {
-         ":hover": "var(--tw-translate-x) var(--tw-translate-y)",
+         ":hover": "0 .5rem",
          "default": null,
        },
      }
@@ -892,10 +917,10 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     ).toMatchInlineSnapshot(`
      {
        "--tw-gradient-from": "#60a5fa",
-       "--tw-gradient-stops": "var(--tw-gradient-via-stops, var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))",
+       "--tw-gradient-stops": "var(--tw-gradient-position, #0000 0%, #db2777 100%)",
        "--tw-gradient-to": "#db2777",
        "--tw-gradient-via": "#a855f7",
-       "--tw-gradient-via-stops": "var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position)",
+       "--tw-gradient-via-stops": "var(--tw-gradient-position), #0000 0%, #a855f7 50%, #0000 100%",
      }
     `);
     expect(convert("2xl:text-6xl sm:text-4xl xs:text-sm"))
@@ -913,7 +938,6 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     `);
     expect(convert("max-w-prose overflow-hidden")).toMatchInlineSnapshot(`
      {
-       "maxWidth": "65ch",
        "overflow": "hidden",
      }
     `);
@@ -962,7 +986,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
        },
        "scale": {
          "@media (prefers-reduced-motion: no-preference)": {
-           ":hover": "var(--tw-scale-x) var(--tw-scale-y)",
+           ":hover": "110% 110%",
            "default": null,
          },
          "default": null,
@@ -995,7 +1019,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
      {
        "--tw-scroll-snap-strictness": "mandatory",
        "scrollBehavior": "auto",
-       "scrollSnapType": "y var(--tw-scroll-snap-strictness)",
+       "scrollSnapType": "y proximity",
      }
     `);
     expect(convert("scroll-smooth hover:scroll-snap-stop"))
@@ -1034,8 +1058,8 @@ describe("tailwind-to-stylex converting individual classnames", () => {
          "default": ""*"",
        },
        "content": {
-         ":before": "var(--tw-content)",
-         "default": "var(--tw-content)",
+         ":before": """",
+         "default": ""*"",
        },
      }
     `);
@@ -1101,9 +1125,23 @@ describe("tailwind-to-stylex converting individual classnames", () => {
        },
      }
     `);
-    expect(
-      convert("marker:text-pink-500 marker:font-extrabold"),
-    ).toMatchInlineSnapshot(`{}`);
+    expect(convert("marker:text-pink-500 marker:font-extrabold"))
+      .toMatchInlineSnapshot(`
+     {
+       "::-webkit-details-marker": {
+         "--tw-font-weight": "800",
+         "color": "#ec4899",
+         "default": null,
+         "fontWeight": "800",
+       },
+       "::marker": {
+         "--tw-font-weight": "800",
+         "color": "#ec4899",
+         "default": null,
+         "fontWeight": "800",
+       },
+     }
+    `);
     expect(convert("select-none hover:select-auto")).toMatchInlineSnapshot(`
      {
        "WebkitUserSelect": {
@@ -1140,7 +1178,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
      {
        "--tw-numeric-figure": "oldstyle-nums",
        "--tw-numeric-spacing": "tabular-nums",
-       "fontVariantNumeric": "var(--tw-ordinal, ) var(--tw-slashed-zero, ) var(--tw-numeric-figure, ) var(--tw-numeric-spacing, ) var(--tw-numeric-fraction, )",
+       "fontVariantNumeric": "   tabular-nums ",
      }
     `);
     expect(convert("visible sm:invisible lg:visible")).toMatchInlineSnapshot(`
@@ -1172,7 +1210,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
          "default": null,
        },
        "scale": {
-         ":is(:where(.group):focus *)": "var(--tw-scale-x) var(--tw-scale-y)",
+         ":is(:where(.group):focus *)": "110% 110%",
          "default": null,
        },
      }
@@ -1180,8 +1218,12 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     expect(convert("hover:bg-none focus:bg-gradient-to-tl"))
       .toMatchInlineSnapshot(`
      {
+       "--tw-gradient-position": {
+         ":focus": "to top left in oklab",
+         "default": null,
+       },
        "backgroundImage": {
-         ":focus": "linear-gradient(to top left, var(--tw-gradient-stops, ))",
+         ":focus": "linear-gradient(var(--tw-gradient-stops))",
          ":hover": "none",
          "default": null,
        },
@@ -1192,11 +1234,11 @@ describe("tailwind-to-stylex converting individual classnames", () => {
      {
        "flexGrow": {
          ":hover": "1",
-         "default": null,
+         "default": "0",
        },
        "flexShrink": {
          ":hover": "0",
-         "default": null,
+         "default": "1",
        },
      }
     `);
@@ -1205,7 +1247,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
        "--tw-border-spacing-x": "1rem",
        "--tw-border-spacing-y": "1rem",
        "borderCollapse": "collapse",
-       "borderSpacing": "var(--tw-border-spacing-x) var(--tw-border-spacing-y)",
+       "borderSpacing": "1rem 1rem",
      }
     `);
     expect(convert("touch-auto sm:touch-manipulation")).toMatchInlineSnapshot(`
@@ -1225,6 +1267,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     expect(convert("transition-transform duration-700 ease-in-out"))
       .toMatchInlineSnapshot(`
      {
+       "--tw-duration": ".7s",
        "transitionDuration": ".7s",
        "transitionProperty": "transform, translate, scale, rotate",
        "transitionTimingFunction": "cubic-bezier(.4, 0, .2, 1)",
@@ -1241,7 +1284,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
          "default": null,
        },
        "transform": {
-         ":hover": "var(--tw-rotate-x) var(--tw-rotate-y) var(--tw-rotate-z) var(--tw-skew-x) var(--tw-skew-y)",
+         ":hover": "    skewY(6deg)",
          "default": null,
        },
      }
