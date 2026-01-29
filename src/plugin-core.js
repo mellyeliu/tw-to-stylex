@@ -9,6 +9,10 @@ import * as pathUtils from "./babel-path-utils";
 
 export type ConvertTwToJs = (classNames: string) => { [string]: mixed } | null;
 
+// Special marker patterns for group/peer that we convert to stylex.when.*
+const ANCESTOR_MARKER_REGEX = /^__stylex_when_ancestor_([a-z-]+)__$/;
+const SIBLING_MARKER_REGEX = /^__stylex_when_sibling_([a-z-]+)__$/;
+
 const canBeIdentifier = (value: string): boolean => {
   if (value.length === 0) {
     return false;
@@ -22,7 +26,7 @@ const canBeIdentifier = (value: string): boolean => {
   return true;
 };
 
-export const convertToAst = (value: mixed): t.Expression => {
+export const convertToAst = (value: mixed, stylexId?: t.Identifier): t.Expression => {
   if (typeof value === "string") {
     return t.stringLiteral(value);
   }
@@ -39,7 +43,7 @@ export const convertToAst = (value: mixed): t.Expression => {
     return t.identifier("undefined");
   }
   if (Array.isArray(value)) {
-    return t.arrayExpression(value.map(convertToAst));
+    return t.arrayExpression(value.map(v => convertToAst(v, stylexId)));
   }
   if (typeof value === 'object' && value != null && typeof value.type === 'string') {
     // $FlowFixMe - This is an AST node
@@ -47,12 +51,47 @@ export const convertToAst = (value: mixed): t.Expression => {
   }
   if (typeof value === "object" && value != null) {
     return t.objectExpression(
-      Object.keys(value).map((key) =>
-        t.objectProperty(
+      Object.keys(value).map((key) => {
+        // Check if this key is a special stylex.when.* marker
+        const ancestorMatch = key.match(ANCESTOR_MARKER_REGEX);
+        if (ancestorMatch && stylexId) {
+          // Convert to [stylex.when.ancestor(':pseudo')]
+          const pseudo = `:${ancestorMatch[1]}`;
+          return t.objectProperty(
+            t.callExpression(
+              t.memberExpression(
+                t.memberExpression(stylexId, t.identifier("when")),
+                t.identifier("ancestor")
+              ),
+              [t.stringLiteral(pseudo)]
+            ),
+            convertToAst(value[key], stylexId),
+            true // computed
+          );
+        }
+
+        const siblingMatch = key.match(SIBLING_MARKER_REGEX);
+        if (siblingMatch && stylexId) {
+          // Convert to [stylex.when.siblingBefore(':pseudo')]
+          const pseudo = `:${siblingMatch[1]}`;
+          return t.objectProperty(
+            t.callExpression(
+              t.memberExpression(
+                t.memberExpression(stylexId, t.identifier("when")),
+                t.identifier("siblingBefore")
+              ),
+              [t.stringLiteral(pseudo)]
+            ),
+            convertToAst(value[key], stylexId),
+            true // computed
+          );
+        }
+
+        return t.objectProperty(
           canBeIdentifier(key) ? t.identifier(key) : t.stringLiteral(key),
-          convertToAst(value[key])
-        )
-      )
+          convertToAst(value[key], stylexId)
+        );
+      })
     );
   }
   throw new Error(`Cannot convert value to AST: ${String(value)}`);
@@ -351,31 +390,79 @@ export function createPlugin(convertTwToJs: ConvertTwToJs): PluginObj<> {
                 return;
               }
 
+              // Handle group/peer marker classes
+              // These become stylex.defaultMarker() with no other styles
+              if (existingValue === "group" || existingValue === "peer") {
+                if (isHTML) {
+                  jsxAttributePath.replaceWith(
+                    t.jsxSpreadAttribute(
+                      t.callExpression(
+                        t.memberExpression(stylex, t.identifier("props")),
+                        [t.callExpression(
+                          t.memberExpression(stylex, t.identifier("defaultMarker")),
+                          []
+                        )]
+                      )
+                    )
+                  );
+                }
+                return;
+              }
+
+              // Handle classes that contain group/peer alongside other classes
+              // e.g., "group flex items-center" -> defaultMarker() + styles
+              const classNames = existingValue.split(/\s+/).filter(c => c);
+              const hasGroupOrPeer = classNames.some(c => c === "group" || c === "peer");
+              const otherClasses = classNames.filter(c => c !== "group" && c !== "peer").join(" ");
+
               let keyName;
 
-              if (cnMap[existingValue]) {
-                keyName = cnMap[existingValue];
-              } else {
-                const styleObject = convertTwToJs(existingValue);
-                if (styleObject == null) {
+              // Use otherClasses if we stripped out group/peer, otherwise use original
+              const classesToConvert = hasGroupOrPeer ? otherClasses : existingValue;
+
+              if (classesToConvert && cnMap[classesToConvert]) {
+                keyName = cnMap[classesToConvert];
+              } else if (classesToConvert) {
+                const styleObject = convertTwToJs(classesToConvert);
+                if (styleObject == null && !hasGroupOrPeer) {
                   return;
                 }
-
-                keyName = `$${++count}`;
-                styleMap[keyName] = styleObject;
-                cnMap[existingValue] = keyName;
+                if (styleObject != null) {
+                  keyName = `$${++count}`;
+                  styleMap[keyName] = styleObject;
+                  cnMap[classesToConvert] = keyName;
+                }
               }
 
               if (isHTML) {
-                jsxAttributePath.replaceWith(
-                  t.jsxSpreadAttribute(
+                const styleArgs: Array<t.Expression> = [];
+
+                // Add defaultMarker() if there's group/peer
+                if (hasGroupOrPeer) {
+                  styleArgs.push(
                     t.callExpression(
-                      t.memberExpression(stylex, t.identifier("props")),
-                      [t.memberExpression(styles, t.identifier(keyName))]
+                      t.memberExpression(stylex, t.identifier("defaultMarker")),
+                      []
                     )
-                  )
-                );
-              } else {
+                  );
+                }
+
+                // Add the style reference if we have one
+                if (keyName) {
+                  styleArgs.push(t.memberExpression(styles, t.identifier(keyName)));
+                }
+
+                if (styleArgs.length > 0) {
+                  jsxAttributePath.replaceWith(
+                    t.jsxSpreadAttribute(
+                      t.callExpression(
+                        t.memberExpression(stylex, t.identifier("props")),
+                        styleArgs
+                      )
+                    )
+                  );
+                }
+              } else if (keyName) {
                 valuePath.replaceWith(
                   t.jsxExpressionContainer(
                     t.memberExpression(styles, t.identifier(keyName))
@@ -418,7 +505,7 @@ export function createPlugin(convertTwToJs: ConvertTwToJs): PluginObj<> {
                 styles,
                 t.callExpression(
                   t.memberExpression(stylex, t.identifier("create")),
-                  [convertToAst(styleMap)]
+                  [convertToAst(styleMap, stylex)]
                 )
               ),
             ])

@@ -93,17 +93,17 @@ const styles = _stylex.create({
 | **Logical expressions** | `{isActive && 'bg-blue-500'}` | && operator |
 | **cn()/twMerge()** | `cn('base', props.className)` | Class merging utilities |
 | **Template literals** | `` `flex ${cond ? 'a' : 'b'}` `` | With conditionals |
+| **Motion preferences** | `motion-reduce:`, `motion-safe:` | Uses `@media (prefers-reduced-motion)` |
+| **Print styles** | `print:hidden` | Uses `@media print` |
+| **Portrait/Landscape** | `portrait:`, `landscape:` | Uses `@media (orientation: ...)` |
+| **Group hover** | `group-hover:text-blue-500` | Auto-converts to `stylex.when.ancestor()` |
+| **Peer states** | `peer-checked:bg-blue-500` | Auto-converts to `stylex.when.siblingBefore()` |
 
 ### ⚠️ Partial Support (Requires Workarounds)
 
 | Feature | Tailwind | StyleX Equivalent | Status |
 |---------|----------|-------------------|--------|
-| **Group hover** | `group-hover:text-blue-500` | `stylex.when.ancestor(':hover')` | Needs marker |
-| **Peer states** | `peer-checked:bg-blue-500` | `stylex.when.siblingBefore(':checked')` | Needs marker |
 | **Container queries** | `@container`, `@lg:flex` | Supported via `@container` at-rule | Manual setup |
-| **Motion preferences** | `motion-reduce:`, `motion-safe:` | `@media (prefers-reduced-motion)` | Manual |
-| **Print styles** | `print:hidden` | `@media print` | Manual |
-| **Portrait/Landscape** | `portrait:`, `landscape:` | `@media (orientation: ...)` | Manual |
 
 ### ❌ Not Supported (StyleX Limitations)
 
@@ -120,31 +120,34 @@ const styles = _stylex.create({
 
 ## Interop: Tailwind → StyleX Patterns
 
-### Group/Peer → stylex.when.*
+### Group/Peer → Automatic Conversion
 
-**Tailwind:**
+Group and peer patterns are automatically converted:
+
+**Tailwind input:**
 ```jsx
-<div className="group">
+<div className="group flex">
   <span className="group-hover:text-blue-500">Hover parent</span>
 </div>
 ```
 
-**StyleX equivalent:**
+**Auto-generated StyleX output:**
 ```jsx
 import * as stylex from '@stylexjs/stylex';
 
+<div {...stylex.props(stylex.defaultMarker(), styles.$1)}>
+  <span {...stylex.props(styles.$2)}>Hover parent</span>
+</div>
+
 const styles = stylex.create({
-  child: {
+  $1: { display: 'flex' },
+  $2: {
     color: {
-      default: 'black',
-      [stylex.when.ancestor(':hover')]: 'blue',
+      default: null,
+      [stylex.when.ancestor(':hover')]: '#3b82f6',
     },
   },
 });
-
-<div {...stylex.props(stylex.defaultMarker())}>
-  <span {...stylex.props(styles.child)}>Hover parent</span>
-</div>
 ```
 
 ### Arbitrary Selectors → Manual Styles

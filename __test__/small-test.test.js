@@ -330,15 +330,68 @@ describe.skip("Not Supported - :has() selector", () => {
   });
 });
 
-describe.skip("Not Supported - group/peer (needs markers)", () => {
+describe("Supported - group/peer with markers", () => {
   test("group hover", async () => {
-    const input = `<div className="group"><span className="group-hover:text-blue-500" /></div>`;
-    // Requires stylex.when.ancestor() with markers
+    const input = `
+    function Component() {
+      return (
+        <div className="group flex">
+          <span className="group-hover:text-blue-500">Hover parent</span>
+        </div>
+      );
+    }
+    `;
+    const result = await tailwindToStylex(input);
+    expect(result).toMatchInlineSnapshot(`
+     "import * as _stylex from "@stylexjs/stylex";
+     function Component() {
+       return <div {..._stylex.props(_stylex.defaultMarker(), _styles.$1)}>
+               <span {..._stylex.props(_styles.$2)}>Hover parent</span>
+             </div>;
+     }
+     const _styles = _stylex.create({
+       $1: {
+         display: "flex"
+       },
+       $2: {
+         color: {
+           default: null,
+           [_stylex.when.ancestor(":hover")]: "#3b82f6"
+         }
+       }
+     });"
+    `);
   });
 
   test("peer checked", async () => {
-    const input = `<input className="peer" /><label className="peer-checked:bg-blue-500" />`;
-    // Requires stylex.when.siblingBefore() with markers
+    const input = `
+    function Component() {
+      return (
+        <div>
+          <input className="peer" type="checkbox" />
+          <label className="peer-checked:text-green-500">Check me</label>
+        </div>
+      );
+    }
+    `;
+    const result = await tailwindToStylex(input);
+    expect(result).toMatchInlineSnapshot(`
+     "import * as _stylex from "@stylexjs/stylex";
+     function Component() {
+       return <div>
+               <input {..._stylex.props(_stylex.defaultMarker())} type="checkbox" />
+               <label {..._stylex.props(_styles.$1)}>Check me</label>
+             </div>;
+     }
+     const _styles = _stylex.create({
+       $1: {
+         color: {
+           default: null,
+           [_stylex.when.siblingBefore(":checked")]: "#22c55e"
+         }
+       }
+     });"
+    `);
   });
 });
 

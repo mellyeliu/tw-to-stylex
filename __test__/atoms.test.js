@@ -870,7 +870,7 @@ describe("tailwind-to-stylex converting individual classnames", () => {
     expect(convert("peer-checked:bg-green-500")).toMatchInlineSnapshot(`
      {
        "backgroundColor": {
-         ":is(:where(.peer):checked ~ *)": "#22c55e",
+         "__stylex_when_sibling_checked__": "#22c55e",
          "default": null,
        },
      }
@@ -1194,23 +1194,23 @@ describe("tailwind-to-stylex converting individual classnames", () => {
       .toMatchInlineSnapshot(`
      {
        "--tw-scale-x": {
-         ":is(:where(.group):focus *)": "110%",
+         "__stylex_when_ancestor_focus__": "110%",
          "default": null,
        },
        "--tw-scale-y": {
-         ":is(:where(.group):focus *)": "110%",
+         "__stylex_when_ancestor_focus__": "110%",
          "default": null,
        },
        "--tw-scale-z": {
-         ":is(:where(.group):focus *)": "110%",
+         "__stylex_when_ancestor_focus__": "110%",
          "default": null,
        },
        "rotate": {
-         ":is(:where(.group):hover *)": "45deg",
+         "__stylex_when_ancestor_hover__": "45deg",
          "default": null,
        },
        "scale": {
-         ":is(:where(.group):focus *)": "110% 110%",
+         "__stylex_when_ancestor_focus__": "110% 110%",
          "default": null,
        },
      }
@@ -1296,8 +1296,8 @@ describe("tailwind-to-stylex converting individual classnames", () => {
       .toMatchInlineSnapshot(`
      {
        "borderColor": {
-         ":is(:where(.peer):focus ~ *)": "#3b82f6",
-         ":is(:where(.peer):invalid ~ *)": "#ef4444",
+         "__stylex_when_sibling_focus__": "#3b82f6",
+         "__stylex_when_sibling_invalid__": "#ef4444",
          "default": null,
        },
      }
@@ -1308,8 +1308,8 @@ describe("tailwind-to-stylex converting individual classnames", () => {
      {
        "color": {
          "@media (prefers-color-scheme: dark)": {
-           ":is(:where(.group):active *)": "#d1d5db",
-           ":is(:where(.group):hover *)": "#fff",
+           "__stylex_when_ancestor_active__": "#d1d5db",
+           "__stylex_when_ancestor_hover__": "#fff",
            "default": null,
          },
          "default": null,

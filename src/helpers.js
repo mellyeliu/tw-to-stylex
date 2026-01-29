@@ -540,11 +540,33 @@ export const convertFromCssToJss = (
         }
 
         // Handle regular class selectors
-        const pseudos = extractPseudos(selector);
+        let selectorToProcess = selector;
+        const groupPeerPseudos: Array<string> = [];
+
+        // Check for group/peer patterns and extract them
+        // Pattern: .class-name:is(:where(.group):hover *)
+        const groupPattern = /:is\(:where\(\.group\)(:[a-z-]+)\s*\*\)/g;
+        let groupMatch;
+        while ((groupMatch = groupPattern.exec(selector)) !== null) {
+          groupPeerPseudos.push(`__stylex_when_ancestor_${groupMatch[1].slice(1)}__`);
+          selectorToProcess = selectorToProcess.replace(groupMatch[0], '');
+        }
+
+        // Pattern: .class-name:is(:where(.peer):checked ~ *)
+        const peerPattern = /:is\(:where\(\.peer\)(:[a-z-]+)\s*~\s*\*\)/g;
+        let peerMatch;
+        while ((peerMatch = peerPattern.exec(selector)) !== null) {
+          groupPeerPseudos.push(`__stylex_when_sibling_${peerMatch[1].slice(1)}__`);
+          selectorToProcess = selectorToProcess.replace(peerMatch[0], '');
+        }
+
+        const pseudos = extractPseudos(selectorToProcess);
+        const allPseudos = [...groupPeerPseudos, ...pseudos];
+
         let className = pseudos
           .reduce(
             (acc, pseudo) => acc.replace(pseudo, ""),
-            selector
+            selectorToProcess
               .replace(/^\./, '')
               .replaceAll(' .', '')
               .replaceAll("\\", "")
@@ -560,7 +582,7 @@ export const convertFromCssToJss = (
           }
           // Then process all children with access to local vars
           for (let child of node.nodes) {
-            processNode(child, [...conditions, ...pseudos], true, localVars);
+            processNode(child, [...conditions, ...allPseudos], true, localVars);
           }
         }
         return;
