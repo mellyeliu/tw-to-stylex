@@ -1,3 +1,9 @@
+/* Import Tailwind CSS - processes classes in variables (Tailwind version) */
+@import "tailwindcss";
+
+/* Import theme variables */
+@import "tailwind-to-stylex/theme.css";
+
 /* Base styles */
 html {
   color-scheme: light dark;
@@ -15,6 +21,18 @@ body {
   body {
     background-image: linear-gradient(to bottom, rgb(20, 22, 27), black);
   }
+}
+
+/* Tailwind v4 CSS variable fallbacks for StyleX output */
+:root {
+  --tw-border-style: solid;
+  --tw-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-inset-shadow: 0 0 #0000;
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-inset-ring-shadow: 0 0 #0000;
+  --tw-leading: initial;
+  --tw-font-weight: initial;
 }
 
 /* Custom heartbeat animation */

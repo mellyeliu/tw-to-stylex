@@ -5,7 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:tailwind": "VITE_BUILD_MODE=tailwind USE_TAILWIND=true vite --port 5174",
+    "dev:compare": "npm run dev & npm run dev:tailwind",
     "build": "tsc -b && vite build",
+    "build:tailwind": "VITE_BUILD_MODE=tailwind USE_TAILWIND=true tsc -b && VITE_BUILD_MODE=tailwind USE_TAILWIND=true vite build",
     "preview": "vite preview"
   },
   "dependencies": {

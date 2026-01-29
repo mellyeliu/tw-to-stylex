@@ -5,6 +5,31 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tailwind + StyleX (Vite)</title>
+    <!-- Tailwind CSS CDN for comparison mode -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'media',
+        theme: {
+          extend: {
+            animation: {
+              heartbeat: 'heartbeat 2s linear infinite',
+            },
+            keyframes: {
+              heartbeat: {
+                '0%': { transform: 'scale(1)' },
+                '10%': { transform: 'scale(1.2)' },
+                '20%': { transform: 'scale(1)' },
+                '30%': { transform: 'scale(1.2)' },
+                '40%': { transform: 'scale(1)' },
+                '90%': { transform: 'scale(0.95)' },
+                '100%': { transform: 'scale(1)' },
+              },
+            },
+          },
+        },
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -5,7 +5,10 @@
   "scripts": {
     "clean": "rm -rf .next",
     "dev": "next dev",
+    "dev:tailwind": "NEXT_PUBLIC_BUILD_MODE=tailwind USE_TAILWIND=true next dev --port 3001",
+    "dev:compare": "npm run dev & npm run dev:tailwind",
     "build": "next build",
+    "build:tailwind": "NEXT_PUBLIC_BUILD_MODE=tailwind USE_TAILWIND=true next build",
     "start": "next start",
     "lint": "next lint"
   },
@@ -18,15 +21,17 @@
   },
   "devDependencies": {
     "@babel/core": "^7.23.5",
+    "@babel/runtime": "^7.28.6",
     "@babel/types": "^7.23.5",
     "@stylexjs/babel-plugin": "^0.17.5",
     "@stylexjs/postcss-plugin": "^0.17.5",
     "@types/node": "^22.0.0",
     "@types/react": "^18.3.0",
     "@types/react-dom": "^18.3.0",
+    "@tailwindcss/postcss": "^4.1.18",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.32",
-    "tailwindcss": "^4.0.0-alpha.24",
+    "tailwindcss": "^4.1.18",
     "typescript": "^5.0.0"
   }
 }
