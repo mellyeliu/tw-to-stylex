@@ -490,26 +490,42 @@ export function createPlugin(convertTwToJs: ConvertTwToJs): PluginObj<> {
           const statments: Array<NodePath<t.Statement>> = path.get("body");
 
           const firstStatement = statments[0];
-          const lastStatement = statments[statments.length - 1];
 
-          firstStatement.insertBefore(
-            t.importDeclaration(
-              [t.importNamespaceSpecifier(stylex)],
-              t.stringLiteral("@stylexjs/stylex")
-            )
+          // Find the last import statement to insert styles after it
+          let lastImportIndex = -1;
+          for (let i = 0; i < statments.length; i++) {
+            if (statments[i].isImportDeclaration()) {
+              lastImportIndex = i;
+            }
+          }
+
+          // Create the styles declaration
+          const stylesDeclaration = t.variableDeclaration("const", [
+            t.variableDeclarator(
+              styles,
+              t.callExpression(
+                t.memberExpression(stylex, t.identifier("create")),
+                [convertToAst(styleMap, stylex)]
+              )
+            ),
+          ]);
+
+          // Create the stylex import
+          const stylexImport = t.importDeclaration(
+            [t.importNamespaceSpecifier(stylex)],
+            t.stringLiteral("@stylexjs/stylex")
           );
 
-          lastStatement.insertAfter(
-            t.variableDeclaration("const", [
-              t.variableDeclarator(
-                styles,
-                t.callExpression(
-                  t.memberExpression(stylex, t.identifier("create")),
-                  [convertToAst(styleMap, stylex)]
-                )
-              ),
-            ])
-          );
+          // Insert both at the appropriate positions
+          // First, insert styles after the last import (or first statement if no imports)
+          if (lastImportIndex >= 0) {
+            statments[lastImportIndex].insertAfter(stylesDeclaration);
+          } else {
+            firstStatement.insertBefore(stylesDeclaration);
+          }
+
+          // Then insert the stylex import at the very beginning
+          firstStatement.insertBefore(stylexImport);
         },
       },
     },
