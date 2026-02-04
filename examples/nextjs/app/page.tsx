@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Button } from '@examples/stylex-components';
 
 const HOMEPAGE = 'https://stylexjs.com';
 
@@ -88,6 +89,10 @@ export default function Home() {
           <Card body="Browse through the StyleX API reference" href={`${HOMEPAGE}/docs/api/`} title="API" />
           <Card body="Play with StyleX and look at the compile outputs" href={`${HOMEPAGE}/playground/`} title="Playground" />
           <Card body="Get started with a NextJS+StyleX project" href="https://github.com/nmn/nextjs-app-dir-stylex" title="Templates" />
+        </div>
+
+        <div className="mt-8">
+          <Button variant="primary" size="sm">StyleX Component</Button>
         </div>
       </main>
     </>

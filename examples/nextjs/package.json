@@ -13,6 +13,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@examples/stylex-components": "file:../../libs/stylex-components",
     "@stylexjs/stylex": "^0.17.5",
     "next": "^15.0.0",
     "react": "^19.0.0",

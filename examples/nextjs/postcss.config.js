@@ -11,9 +11,9 @@ module.exports = {
         autoprefixer: {},
       }
     : {
-        // StyleX mode: StyleX first, then Tailwind for any remaining classes
+        // StyleX mode: only StyleX for utilities (Tailwind base/theme imported directly in CSS)
         '@stylexjs/postcss-plugin': {
-          include: ['app/**/*.{js,jsx,ts,tsx}'],
+          include: ['app/**/*.{js,jsx,ts,tsx}', '../../libs/stylex-components/src/**/*.{js,jsx,ts,tsx}'],
           babelConfig: {
             babelrc: false,
             parserOpts: {
@@ -23,7 +23,6 @@ module.exports = {
           },
           useCSSLayers: true,
         },
-        '@tailwindcss/postcss': {},
         autoprefixer: {},
       },
 };

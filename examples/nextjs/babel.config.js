@@ -8,13 +8,40 @@ const tailwindToStylexSync = require('tailwind-to-stylex/sync').default;
 
 const dev = process.env.NODE_ENV !== 'production';
 
+// Wrap the tw-to-stylex plugin to exclude stylex-components
+const twToStylexWithExclude = () => {
+  const originalPlugin = tailwindToStylexSync();
+  const originalProgramVisitor = originalPlugin.visitor.Program;
+
+  return {
+    name: originalPlugin.name,
+    visitor: {
+      Program: {
+        enter(programPath, state) {
+          // Skip processing for stylex-components library
+          const filename = state.filename || '';
+          if (filename.includes('stylex-components')) {
+            return;
+          }
+          // Call the original Program visitor's enter method
+          if (typeof originalProgramVisitor === 'function') {
+            return originalProgramVisitor(programPath, state);
+          } else if (originalProgramVisitor && typeof originalProgramVisitor.enter === 'function') {
+            return originalProgramVisitor.enter(programPath, state);
+          }
+        },
+      },
+    },
+  };
+};
+
 module.exports = {
   presets: ['next/babel'],
   plugins: useRawTailwind
     ? []
     : [
         // tailwind-to-stylex runs FIRST to transform className to StyleX
-        tailwindToStylexSync,
+        twToStylexWithExclude,
         // StyleX babel plugin runs SECOND to compile StyleX
         [
           '@stylexjs/babel-plugin',
@@ -23,11 +50,16 @@ module.exports = {
             runtimeInjection: false,
             enableInlinedConditionalMerge: true,
             treeshakeCompensation: true,
+            importSources: [
+              '@stylexjs/stylex',
+              { from: '@examples/stylex-components', as: '@stylexjs/stylex' },
+            ],
             aliases: {
               '@/*': [path.join(__dirname, '*')],
             },
             unstable_moduleResolution: {
               type: 'commonJS',
+              rootDir: path.join(__dirname, '../..'),
             },
           },
         ],

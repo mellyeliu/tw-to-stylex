@@ -1,7 +1,18 @@
-/* Import Tailwind CSS - processes classes in variables (Tailwind version) */
-@import "tailwindcss";
+/* Import only Tailwind preflight (reset/normalize) */
+@import "tailwindcss/preflight" layer(base);
 
-/* Import theme variables */
+/* Minimal theme - only the variables StyleX output actually uses */
+@layer theme {
+  :root {
+    --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --font-family-sans: var(--font-sans);
+    --font-family-mono: var(--font-mono);
+    --tw-shadow-color: rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Import theme variables from tw-to-stylex */
 @import "tailwind-to-stylex/theme.css";
 
 /* Base styles */
