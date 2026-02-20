@@ -9,6 +9,7 @@ import { spawnSync } from 'child_process';
 import { optimizeCss } from './classes-to-css';
 import { convertFromCssToJss } from './helpers';
 import { createPlugin } from './plugin-core';
+import type { PluginOptions } from './plugin-core';
 
 // Tailwind patterns that StyleX cannot support
 const UNSUPPORTED_CLASS_PATTERNS = [
@@ -18,7 +19,8 @@ const UNSUPPORTED_CLASS_PATTERNS = [
   { pattern: /^\[&/, name: '[&...] arbitrary selectors', reason: 'requires complex selectors' },
 ];
 
-function warnUnsupportedClasses(classNames: string): void {
+function warnUnsupportedClasses(classNames: string, logUnsupported: boolean): void {
+  if (!logUnsupported) return;
   const classes = classNames.split(' ');
 
   for (const cls of classes) {
@@ -75,26 +77,31 @@ function compileClassesSync(classNames: string): string | null {
   }
 }
 
-export default function tailwindToStylexSync(): mixed {
+export default function tailwindToStylexSync(_context: mixed, pluginOptions?: PluginOptions): mixed {
+  const logUnsupported = pluginOptions?.logUnsupported ?? false;
   const convertTwToJs = (classNames: string) => {
     // Warn about unsupported patterns
-    warnUnsupportedClasses(classNames);
+    warnUnsupportedClasses(classNames, logUnsupported);
 
     let resultCss, resultJSS;
     try {
       resultCss = compileClassesSync(classNames);
       if (resultCss == null) {
-        console.log('[TW->StyleX] CSS compile returned null for:', classNames);
+        if (logUnsupported) {
+          console.log('[TW->StyleX] CSS compile returned null for:', classNames);
+        }
         return null;
       }
-      resultJSS = convertFromCssToJss(classNames, resultCss);
+      resultJSS = convertFromCssToJss(classNames, resultCss, { logUnsupported });
       return resultJSS;
     } catch (e) {
-      console.log('[TW->StyleX] Error converting:', classNames);
-      console.log('[TW->StyleX] Error:', e.message);
+      if (logUnsupported) {
+        console.log('[TW->StyleX] Error converting:', classNames);
+        console.log('[TW->StyleX] Error:', e.message);
+      }
       return null;
     }
   };
 
-  return createPlugin(convertTwToJs);
+  return createPlugin(convertTwToJs, { logUnsupported });
 }

@@ -402,7 +402,9 @@ function packObject(obj: Jss) {
 export const convertFromCssToJss = (
   classNames: string | $ReadOnlyArray<string>,
   css: string,
+  options?: { logUnsupported?: boolean },
 ): null | Jss => {
+  const logUnsupported = options?.logUnsupported ?? false;
   const toMatch = typeof classNames === "string"
     ? classNames.split(' ')
     : classNames;
@@ -411,8 +413,9 @@ export const convertFromCssToJss = (
     const root = postcss.parse(css);
     const object: Jss = {};
 
-    // First pass: collect @property initial-values
+    // First pass: collect @property initial-values and :root/:host variables
     const propertyInitialValues: Map<string, string> = new Map();
+    const rootVars: Map<string, string> = new Map();
     for (let node of root.nodes) {
       if (node.type === "atrule" && node.name === "property" && node.nodes) {
         const propName = node.params; // e.g., "--tw-border-style"
@@ -422,10 +425,22 @@ export const convertFromCssToJss = (
           }
         }
       }
+      // Extract variables from :root, :host selectors (from @theme blocks)
+      if (node.type === "rule") {
+        const selector = node.selector;
+        // Match :root, :host, or combined selectors like ":root, :host"
+        if (selector.includes(":root") || selector.includes(":host")) {
+          for (let child of node.nodes) {
+            if (child.type === "decl" && child.prop.startsWith("--")) {
+              rootVars.set(child.prop, child.value);
+            }
+          }
+        }
+      }
     }
 
     // Helper to inline CSS variable values
-    // Priority: localVars (from current rule) > @property initial-values > theme vars
+    // Priority: localVars (from current rule) > rootVars (from :root/:host) > @property initial-values > theme vars
     const inlineVarValues = (
       value: string,
       localVars: Map<string, string>
@@ -436,6 +451,11 @@ export const convertFromCssToJss = (
         const localValue = localVars.get(varName);
         if (localValue) {
           return localValue;
+        }
+        // Then check :root/:host variables (from @theme blocks)
+        const rootValue = rootVars.get(varName);
+        if (rootValue) {
+          return rootValue;
         }
         // Then check @property initial-values
         const initialValue = propertyInitialValues.get(varName);
@@ -520,12 +540,14 @@ export const convertFromCssToJss = (
 
             for (const { pattern, name, example } of unsupportedPatterns) {
               if (pattern.test(selectorPart)) {
-                console.warn(
-                  `[TW→StyleX] Skipping unsupported pattern: ${name}\n` +
-                  `  Selector: &${selectorPart}\n` +
-                  `  Example: ${example}\n` +
-                  `  StyleX limitation: atomic CSS doesn't support element relationships or compound selectors`
-                );
+                if (logUnsupported) {
+                  console.warn(
+                    `[TW→StyleX] Skipping unsupported pattern: ${name}\n` +
+                    `  Selector: &${selectorPart}\n` +
+                    `  Example: ${example}\n` +
+                    `  StyleX limitation: atomic CSS doesn't support element relationships or compound selectors`
+                  );
+                }
                 return;
               }
             }
@@ -636,7 +658,9 @@ export const convertFromCssToJss = (
     const packed = packObject(object);
     return packed;
   } catch (e) {
-    console.log(e);
+    if (logUnsupported) {
+      console.log(e);
+    }
     return null;
   }
 };

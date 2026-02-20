@@ -8,6 +8,7 @@ import type { PluginObj } from "@babel/core";
 import * as pathUtils from "./babel-path-utils";
 
 export type ConvertTwToJs = (classNames: string) => { [string]: mixed } | null;
+export type PluginOptions = { logUnsupported?: boolean };
 
 // Special marker patterns for group/peer that we convert to stylex.when.*
 const ANCESTOR_MARKER_REGEX = /^__stylex_when_ancestor_([a-z-]+)__$/;
@@ -113,7 +114,8 @@ function isCallExpressionNamed(path: NodePath<t.Expression>, fnNames: $ReadOnlyA
   return true;
 }
 
-export function createPlugin(convertTwToJs: ConvertTwToJs): PluginObj<> {
+export function createPlugin(convertTwToJs: ConvertTwToJs, options?: PluginOptions): PluginObj<> {
+  const logUnsupported = options?.logUnsupported ?? false;
   let count = 0;
   let cnMap: { [string]: string } = {};
   let styleMap: { [string]: mixed } = {};

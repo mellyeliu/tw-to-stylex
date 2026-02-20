@@ -1,19 +1,16 @@
-/* Import Tailwind CSS - processes classes in variables (Tailwind version) */
-@import "tailwindcss";
-
 /* Import theme variables */
 @import "tailwind-to-stylex/theme.css";
 
 /* Base styles */
-html {
-  color-scheme: light dark;
-  min-height: 100%;
-}
-
+html,
 body {
-  min-height: 100%;
+  color-scheme: light dark;
+  height: 100dvh;
+  max-height: 100dvh;
   margin: 0;
   padding: 0;
+  overflow: hidden;
+  font-family: sans-serif;
   background-image: linear-gradient(to bottom, rgb(214, 219, 220), white);
 }
 
